@@ -1,6 +1,4 @@
 payroll_project/
 ├── manage.py
 ├── models.py
-├── Pipfile
-├── Pipfile.lock
-└── .env   ← if you create one for secrets
+└── db.sqlite3
