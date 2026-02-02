@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from decimal import Decimal, ROUND_HALF_UP
 from django.core.exceptions import ValidationError
+from datetime import date
 
 
 # MODELS
@@ -21,10 +22,24 @@ class Employee(models.Model):
     
 class Payroll(models.Model):
     employee = models.ForeignKey(Employee ,on_delete=models.CASCADE)
-    hours_worked = models.DecimalField(max_digits=5, decimal_places=2, validators=[validate_half_hour]) #validators validates the input if applicable to decimal .50
-    overtime_hours = models.DecimalField(max_digits=5, decimal_places=2, default=0, validators=[validate_half_hour]) 
-    created_at = models.DateTimeField(auto_now_add=True)
+    payroll_period = models.DateField(default=date.today)
 
+
+    hours_worked = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2, 
+        validators=[validate_half_hour]
+        ) #validators validates the input if applicable to decimal .50
+    
+    overtime_hours = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2, 
+        default=0, 
+        validators=[validate_half_hour]
+        ) 
+    
+    created_at = models.DateField(auto_now_add = True)
+    
     def total_pay(self):
         overtime_rate = self.employee.hourly_rate * Decimal ('1.25') 
         total = (
@@ -33,8 +48,15 @@ class Payroll(models.Model):
 
         )
         return total.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) #sets the precision as 2. decimal places.
+    
+    class meta:
+        unique_together = ('employee, payroll_period')
+        ordering = ['-payroll_period']
+    
+
+
     def __str__(self):
         return f"Payroll - {self.employee.user.username}"
-    
+  
 
 
