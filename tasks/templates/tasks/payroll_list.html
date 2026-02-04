@@ -18,7 +18,14 @@
     </tr>
 
     {% for payroll in payrolls %}
+    
     <tr>  <!-- everything in this row runs per payroll record -->
+            <td> 
+                <a href="{% url 'payroll_detail' payroll.pk%}"> 
+                    {{ payroll.employee.user.username}}
+
+                </a>
+            </td>
 
         <td>{{ payroll.employee.user.username }}</td>   <!-- table data cell -->
         <td>{{ payroll.employee.position }}</td>

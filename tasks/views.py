@@ -16,6 +16,11 @@ def payroll_list(request):
     payrolls = Payroll.objects.select_related('employee').all() #queryset fetched Payrolls and related attributes of the foreign key on 'employee'
     return render (request, 'tasks/payroll_list.html', {'payrolls':payrolls})
 
-def payroll_detail(request, payroll_id):
-    payroll = get_object_or_404(Payroll, id=payroll_id)
+def payroll_detail(request, pk):
+    payroll = get_object_or_404(
+        Payroll, #the model querying to
+        pk=pk,  #looks into the payroll id that matches with the url pk
+        employee__user=request.user #looks into the field employee and the user field in which is linked to the employee. 
+        #and checks if those fields, matched with the user logged in.
+        ) 
     return render (request, 'tasks/payroll_detail.html', {'payroll': payroll})
