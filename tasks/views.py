@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from .models import Employee, Payroll
 
 
@@ -24,3 +25,8 @@ def payroll_detail(request, pk):
         #and checks if those fields, matched with the user logged in.
         ) 
     return render (request, 'tasks/payroll_detail.html', {'payroll': payroll})
+
+@staff_member_required
+def hr_payroll_list(request):
+    hrPayroll = Payroll.objects.all()
+    return render (request, 'hr_payroll_list.html', {'hrPayroll' : hrPayroll})
