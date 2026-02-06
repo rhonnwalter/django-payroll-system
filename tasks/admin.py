@@ -18,5 +18,5 @@ class PayrollAdmin(admin.ModelAdmin):
     search_fields = ('employee__first_name', 'employee__last_name', 'payroll_period')
     #Lets you search payrolls by employee name or payroll period.
 
-    ordering = ('payroll_period', 'Employee')
+    ordering = ('payroll_period', 'employee')
     #Shows the most recent payrolls at the top by default.

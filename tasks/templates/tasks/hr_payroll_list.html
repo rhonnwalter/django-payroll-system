@@ -1,3 +1,4 @@
+{% load humanize %}
 <!DOCTYPE html>
 <html> 
 
@@ -5,10 +6,40 @@
     <title> HR Payroll Details </title> 
 
 </head>
-<body> 
-    <h1> Payroll Records</h1>
+<body>
+    <h1>Payroll Records</h1>
 
-    d
+    <table border ="1" cellpadding ="8">
+      <tr>
+        <th>Employee</th> 
+        <th>Position</th>
+        <th>Hours Worked</th>
+        <th>Overtime Hours</th>
+        <th>Total Pay</th>
+      </tr>
+
+      {% for payroll in payrolls%}
+      <tr>
+        <td>{{payroll.employee.user.username}}</td>
+        <td>{{payroll.employee.position}}</td>
+        <td>{{payroll.hours_worked}}</td>
+        <td>{{payroll.overtime_hours}}</td>
+        <td>₱{{payroll.total_pay| intcomma}}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5">No payroll records yet.</td>
+      </tr>
+      {%endfor%}
+
+
+
+
+    </table>
+
+
+  
+ 
     
 </body>
 

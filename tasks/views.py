@@ -28,5 +28,5 @@ def payroll_detail(request, pk):
 
 @staff_member_required
 def hr_payroll_list(request):
-    hrPayroll = Payroll.objects.all()
-    return render (request, 'hr_payroll_list.html', {'hrPayroll' : hrPayroll})
+    payrolls = Payroll.objects.all()
+    return render (request, 'tasks/hr_payroll_list.html', {'payrolls': payrolls})
