@@ -18,7 +18,11 @@ def payroll_list(request):
     return render (request, 'tasks/payroll_list.html', {'payrolls':payrolls})
 
 def payroll_detail(request, pk):
-    payroll = get_object_or_404(
+    if request.user.is_staff or request.user.is_superuser:
+        payroll = get_object_or_404 (Payroll, pk=pk)
+    else:
+         payroll = get_object_or_404(
+    
         Payroll, #the model querying to
         pk=pk,  #looks into the payroll id that matches with the url pk
         employee__user=request.user #looks into the field employee and the user field in which is linked to the employee. 
@@ -28,5 +32,5 @@ def payroll_detail(request, pk):
 
 @staff_member_required
 def hr_payroll_list(request):
-    payrolls = Payroll.objects.all()
+    payrolls = Payroll.objects.select_related('employee_user').all()
     return render (request, 'tasks/hr_payroll_list.html', {'payrolls': payrolls})
