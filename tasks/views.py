@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import render
+from django.db.models import Q
 from .models import Employee, Payroll
 
 
@@ -32,5 +34,21 @@ def payroll_detail(request, pk):
 
 @staff_member_required
 def hr_payroll_list(request):
-    payrolls = Payroll.objects.select_related('employee_user').all()
-    return render (request, 'tasks/hr_payroll_list.html', {'payrolls': payrolls})
+    search = request.GET.get('search', '')
+
+    payrolls = Payroll.objects.select_related('employee__user').all()
+
+    if search: 
+        payrolls = payrolls.filter (
+            Q(employee__user__username__icontains=search) |
+            Q(employee__position__icontains=search) |
+            Q(payroll_period__icontains=search)
+        )
+    
+    payrolls = payrolls.order_by('-payroll_period')
+
+    context = {
+        'payrolls' : payrolls,
+        'search_query' : search
+    }
+    return render (request, 'tasks/hr_payroll_list.html', context)
