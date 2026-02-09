@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render
 from django.db.models import Q
+from django.core.paginator import Paginator
 from .models import Employee, Payroll
 
 
@@ -35,7 +36,6 @@ def payroll_detail(request, pk):
 @staff_member_required
 def hr_payroll_list(request):
     search = request.GET.get('search', '')
-
     payrolls = Payroll.objects.select_related('employee__user').all()
 
     if search: 
@@ -47,8 +47,12 @@ def hr_payroll_list(request):
     
     payrolls = payrolls.order_by('-payroll_period')
 
+    paginator = Paginator(payrolls, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        'payrolls' : payrolls,
+        'page_obj' : page_obj,
         'search_query' : search
     }
     return render (request, 'tasks/hr_payroll_list.html', context)
