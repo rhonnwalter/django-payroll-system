@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render
 from django.db.models import Q
@@ -49,10 +50,24 @@ def hr_payroll_list(request):
 
     paginator = Paginator(payrolls, 10)
     page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = paginator.get_page(page_number) #this displays the per page payrolls with the applied paginator of 10 per pages
 
     context = {
         'page_obj' : page_obj,
         'search_query' : search
     }
     return render (request, 'tasks/hr_payroll_list.html', context)
+
+@login_required
+def dashboard_redirect(request):
+    user = request.user
+
+    if user.is_superuser:
+        return redirect('/admin')
+    
+    elif user.is_staff:
+        return redirect('/hr_payroll_list')
+    
+    else:  
+        return redirect('/payroll_detail')
+
