@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
+from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.contrib.admin.views.decorators import staff_member_required
@@ -7,6 +8,7 @@ from django.shortcuts import render
 from django.db.models import Q
 from django.core.paginator import Paginator
 from .models import Employee, Payroll
+
 
 
 @login_required
@@ -17,8 +19,8 @@ def employee_list(request):
     employees = Employee.objects.all()
     return render (request, 'tasks/employee_list.html', {'employees':employees})
 
-def payroll_list(request):
-    payrolls = Payroll.objects.select_related('employee').all() #queryset fetched Payrolls and related attributes of the foreign key on 'employee'
+def my_payroll(request):
+    payrolls = Payroll.objects.select_related('employee').all()
     return render (request, 'tasks/payroll_list.html', {'payrolls':payrolls})
 
 def payroll_detail(request, pk):
@@ -34,7 +36,15 @@ def payroll_detail(request, pk):
         ) 
     return render (request, 'tasks/payroll_detail.html', {'payroll': payroll})
 
+def hr_required(view_func):
+    def wrapper(request, *args, **kwargs): # *args collects extra positional arguments. **kwargs collects extra keyword arguments.
+        if not request.user.is_superuser: 
+            return HttpResponseForbidden("You are not allowed here.")
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
 @staff_member_required
+@hr_required
 def hr_payroll_list(request):
     search = request.GET.get('search', '')
     payrolls = Payroll.objects.select_related('employee__user').all()
@@ -70,4 +80,8 @@ def dashboard_redirect(request):
     
     else:  
         return redirect('/payroll_detail')
+    
+ 
+
+
 
