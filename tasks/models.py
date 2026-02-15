@@ -17,12 +17,18 @@ class Employee(models.Model):
     position  =models.CharField(max_length=100)
     hourly_rate = models.DecimalField(max_digits=8, decimal_places=2)
 
+    is_active = models.BooleanField(default = True)
+    date_hired = models.DateTimeField(auto_now_add=True)
+
     def __str__(self):
         return f"{self.employee_id} - {self.user.username}"
     
 class Payroll(models.Model):
     employee = models.ForeignKey(Employee ,on_delete=models.CASCADE)
     payroll_period = models.DateField(default=date.today)
+    created_at = models.DateField(auto_now_add = True)
+    updated_at = models.DateTimeField(auto_now_add= True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
 
     hours_worked = models.DecimalField(
@@ -38,7 +44,6 @@ class Payroll(models.Model):
         validators=[validate_half_hour]
         ) 
     
-    created_at = models.DateField(auto_now_add = True)
     
     def total_pay(self):
         overtime_rate = self.employee.hourly_rate * Decimal ('1.25') 
