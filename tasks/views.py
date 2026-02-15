@@ -20,8 +20,8 @@ def employee_list(request):
     return render (request, 'tasks/employee_list.html', {'employees':employees})
 
 def my_payroll(request):
-    payrolls = Payroll.objects.select_related('employee').all()
-    return render (request, 'tasks/payroll_list.html', {'payrolls':payrolls})
+    payroll= Payroll.objects.filter('employee__user=request.user').first()
+    return render (request, 'tasks/my_payroll.html', {'payroll':payroll})
 
 def payroll_detail(request, pk):
     if request.user.is_staff or request.user.is_superuser:
@@ -79,7 +79,7 @@ def dashboard_redirect(request):
         return redirect('/hr_payroll_list')
     
     else:  
-        return redirect('/payroll_detail')
+        return redirect('/my_payroll')
     
  
 

@@ -27,7 +27,7 @@ class Payroll(models.Model):
     employee = models.ForeignKey(Employee ,on_delete=models.CASCADE)
     payroll_period = models.DateField(default=date.today)
     created_at = models.DateField(auto_now_add = True)
-    updated_at = models.DateTimeField(auto_now_add= True)
+    updated_at = models.DateTimeField(auto_now= True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
 
@@ -54,8 +54,8 @@ class Payroll(models.Model):
         )
         return total.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) #sets the precision as 2. decimal places.
     
-    class meta:
-        unique_together = ('employee, payroll_period')
+    class Meta:
+        unique_together = ('employee', 'payroll_period')
         ordering = ['-payroll_period']
     
 
