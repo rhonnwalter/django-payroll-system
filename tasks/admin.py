@@ -2,9 +2,9 @@ from django.contrib import admin
 from .models import Employee, Payroll
 
 # Register your models here.
-admin.site.register(Employee)
+class EmployeeAdmin(admin.ModelAdmin):
+    list_display = ('user', 'position', 'hourly_rate', 'is_active','date_hired',)
 
-@admin.register(Payroll)
 class PayrollAdmin(admin.ModelAdmin):
     list_display = ('employee', 'payroll_period', 'created_at',)
     #Shows Employee, Payroll Period, and Created At columns in the list view.
@@ -20,3 +20,6 @@ class PayrollAdmin(admin.ModelAdmin):
 
     ordering = ('payroll_period', 'employee')
     #Shows the most recent payrolls at the top by default.
+
+admin.site.register(Employee, EmployeeAdmin)
+admin.site.register(Payroll, PayrollAdmin)
