@@ -30,7 +30,7 @@ class PayrollAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at','created_by')
     #Prevents accidentally changing the timestamp.
 
-    list_filter = ('payroll_period', 'created_at', )
+    list_filter = ('status','payroll_period', 'created_at', )
     #Lets you filter payrolls by period or creation date quickly.
     search_fields = ('employee__first_name', 'employee__last_name', 'payroll_period')
     #Lets you search payrolls by employee name or payroll period.
