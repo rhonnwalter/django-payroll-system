@@ -17,11 +17,11 @@ def dashboard(request):
 # Create your views here.
 def employee_list(request):
     employees = Employee.objects.all()
-    return render (request, 'tasks/employee_list.html', {'employees':employees})
+    return render (request, 'dashboard/employee_list.html', {'employees':employees})
 
 def my_payroll(request):
     payroll= Payroll.objects.filter('employee__user=request.user').first()
-    return render (request, 'tasks/my_payroll.html', {'payroll':payroll})
+    return render (request, 'dashboard/my_payroll.html', {'payroll':payroll})
 
 def payroll_detail(request, pk):
     if request.user.is_staff or request.user.is_superuser:
@@ -34,7 +34,7 @@ def payroll_detail(request, pk):
         employee__user=request.user #looks into the field employee and the user field in which is linked to the employee. 
         #and checks if those fields, matched with the user logged in.
         ) 
-    return render (request, 'tasks/payroll_detail.html', {'payroll': payroll})
+    return render (request, 'dashboard/payroll_detail.html', {'payroll': payroll})
 
 def hr_required(view_func):
     def wrapper(request, *args, **kwargs): # *args collects extra positional arguments. **kwargs collects extra keyword arguments.
@@ -66,21 +66,30 @@ def hr_payroll_list(request):
         'page_obj' : page_obj,
         'search_query' : search
     }
-    return render (request, 'tasks/hr_payroll_list.html', context)
+    return render (request, 'dashboard/hr_payroll_list.html', context)
 
 @login_required
 def dashboard_redirect(request):
     user = request.user
 
     if user.is_superuser:
-        return redirect('/admin')
+        return redirect('hr_dashboard')
     
     elif user.is_staff:
-        return redirect('/hr_payroll_list')
+        return redirect('hr_dashboard')
     
     else:  
-        return redirect('/my_payroll')
+        return redirect('employee_dashboard')
     
+
+def hr_dashboard(request):
+    if not request.user.is_superuser:
+        return redirect('employee_dashboard')
+    return render(request, 'dashboard/hr_dashboard.html')
+def employee_dashboard(request):
+    if not request.user.is_authenticated:
+        return redirect("/login/")
+    return render(request, 'dashboard/employee_dashboard.html')
  
 
 
