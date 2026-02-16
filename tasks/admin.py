@@ -15,6 +15,7 @@ class PayrollAdmin(admin.ModelAdmin):
     list_display = (
         'employee',
         'payroll_period', 
+        'status',
         'total_pay',
         'created_by',
         'created_at',
