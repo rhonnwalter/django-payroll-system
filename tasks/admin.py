@@ -25,8 +25,7 @@ class PayrollAdmin(admin.ModelAdmin):
         if not obj.created_by:
             obj.created_by = request.user
         super().save_model(request, obj, form, change)
-    #Shows Employee, Payroll Period, and Created At columns in the list view.
-
+  
     readonly_fields = ('created_at','created_by')
     #Prevents accidentally changing the timestamp.
 

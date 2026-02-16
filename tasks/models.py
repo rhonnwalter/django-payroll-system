@@ -54,6 +54,13 @@ class Payroll(models.Model):
         )
         return total.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) #sets the precision as 2. decimal places.
     
+    status_choices = (
+        ('pending', 'Pending'), #first element is the actual value passed to db, second element is what is readable to admin
+        ('paid', 'Paid'),
+    )
+
+    status = models.CharField(max_length=10, choices=status_choices, default='pending' )
+    
     class Meta:
         unique_together = ('employee', 'payroll_period')
         ordering = ['-payroll_period']
