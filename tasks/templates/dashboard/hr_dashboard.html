@@ -1,3 +1,4 @@
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,12 +10,12 @@
     <h1>Hr Dashboard</h1>
     <p>Welcome, {{ request.user.username}}!</p>
 
-    <ul>    
-        <li><a href="{% url 'hr_payroll_list' %}">View all Payrolls</a></li>
-        <li><a href="{% url 'employee_list' %}">View all Employees</a></li>
-        <li><a href="/admin/">Go to Admin Site</a></li>
+    <h2>Payroll Stats</h2>
 
+    <p>Total Payroll Records: {{ total_payrolls }}</p>
+    <p>Total Salary Expenses: ₱{{ total_salary|intcomma }}</p>
 
-    </ul>
+    <h3>All Payrolls</h3>
+    <a href="{% url 'hr_payroll_list'%}">View Payrolls</a>
 </body>
 </html>
