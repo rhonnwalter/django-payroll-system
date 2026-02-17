@@ -10,10 +10,6 @@ from django.core.paginator import Paginator
 from .models import Employee, Payroll
 
 
-
-@login_required
-def dashboard(request):
-    return render(request,  "dashboard.html")
 # Create your views here.
 def employee_list(request):
     employees = Employee.objects.all()
@@ -86,11 +82,19 @@ def hr_dashboard(request):
     if not request.user.is_superuser:
         return redirect('employee_dashboard')
     return render(request, 'dashboard/hr_dashboard.html')
+
+@login_required
 def employee_dashboard(request):
-    if not request.user.is_authenticated:
-        return redirect("/login/")
-    return render(request, 'dashboard/employee_dashboard.html')
- 
+    payrolls = Payroll.objects.filter(employee__user=request.user).order_by('-created_at')
+    latest_payroll = payrolls.first()
+    total_payrolls = payrolls.count()
+
+    context = {
+        'latest_payroll' : latest_payroll,
+        'total_payrolls' : total_payrolls,
+
+    }
+    return render (request, 'dashboard/employee_dashboard.html', context)
 
 
 
