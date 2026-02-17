@@ -77,11 +77,21 @@ def dashboard_redirect(request):
     else:  
         return redirect('employee_dashboard')
     
-
+from django.db.models import Sum
 def hr_dashboard(request):
     if not request.user.is_superuser:
         return redirect('employee_dashboard')
-    return render(request, 'dashboard/hr_dashboard.html')
+    payrolls = Payroll.objects.annotate(total_pay_expr=Payroll.total_pay_expression())
+
+    total_payrolls = payrolls.count()
+    total_salary = payrolls.aggregate(Sum('total_pay_expr'))['total_pay_expr__sum'] or 0
+    context = {
+        'payrolls' : payrolls,
+        'total_payrolls' : total_payrolls,
+        'total_salary' : total_salary
+
+    }
+    return render(request, 'dashboard/hr_dashboard.html', context)
 
 @login_required
 def employee_dashboard(request):
