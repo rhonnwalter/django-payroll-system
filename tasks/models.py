@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from decimal import Decimal, ROUND_HALF_UP
 from django.core.exceptions import ValidationError
 from datetime import date
+from django.db.models import F, ExpressionWrapper, DecimalField
+
 
 
 # MODELS
@@ -53,7 +55,14 @@ class Payroll(models.Model):
 
         )
         return total.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) #sets the precision as 2. decimal places.
-    
+    @classmethod #decorator
+    def total_pay_expression(cls):
+        return ExpressionWrapper(
+            F('hours_worked') * F('employee__hourly_rate') + # F is way of referring to modelfields in the db query
+            F('overtime_hours') * F('employee__hourly_rate') * Decimal('1.5'),
+            output_field=DecimalField(max_digits=10, decimal_places=2)
+        )
+  
     status_choices = (
         ('pending', 'Pending'), #first element is the actual value passed to db, second element is what is readable to admin
         ('paid', 'Paid'),
