@@ -31,6 +31,12 @@ class Payroll(models.Model):
     created_at = models.DateField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now= True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    status_choices = (
+        ('pending', 'Pending'), #first element is the actual value passed to db, second element is what is readable to admin
+        ('paid', 'Paid'),
+    )
+
+    status = models.CharField(max_length=10, choices=status_choices, default='pending' )
 
 
     hours_worked = models.DecimalField(
@@ -63,12 +69,6 @@ class Payroll(models.Model):
             output_field=DecimalField(max_digits=10, decimal_places=2)
         )
   
-    status_choices = (
-        ('pending', 'Pending'), #first element is the actual value passed to db, second element is what is readable to admin
-        ('paid', 'Paid'),
-    )
-
-    status = models.CharField(max_length=10, choices=status_choices, default='pending' )
     
     class Meta:
         unique_together = ('employee', 'payroll_period')
