@@ -64,6 +64,15 @@ def hr_payroll_list(request):
     }
     return render (request, 'dashboard/hr_payroll_list.html', context)
 
+def payroll_history(request):
+    payrolls = Payroll.objects.filter(
+        employee__user=request.user
+    ).order_by('payroll_period')
+    context = {
+        'payrolls' : payrolls
+    }
+    return render (request, 'dashboard/payroll_history.html', context)
+
 @login_required
 def dashboard_redirect(request):
     user = request.user
@@ -84,7 +93,7 @@ def hr_dashboard(request):
     payrolls = Payroll.objects.annotate(total_pay_expr=Payroll.total_pay_expression())
 
     total_payrolls = payrolls.count()
-    total_salary = payrolls.aggregate(Sum('total_pay_expr'))['total_pay_expr__sum'] or 0
+    total_salary = payrolls.aggregate(Sum('total_pay_expr'))['total_pay_expr__sum'] or 0 #['total_pay_expr__sum' grab the actual number from the dictionary.
     context = {
         'payrolls' : payrolls,
         'total_payrolls' : total_payrolls,
