@@ -1,0 +1,38 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payroll History</title>
+</head>
+<body>
+    <h1>My Payroll History</h1>
+    <table border="1" cellpadding="8">
+        <tr>
+            <th>Payroll Period</th>
+            <th>Total Pay</th>
+            <th>Status</th>
+            <th>View</th>
+        </tr>
+
+        {% for payroll in payrolls%}
+        <tr>
+            <td>{{payroll.payroll_period}}</td>
+            <td>₱{{payroll.total_pay}}</td>
+            <td>{{payroll.status}}</td>
+            <td>
+                <a href="{% url'payroll_detail' payroll.id%}">View</a>
+            </td>
+            
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No Payroll records yet.</td>
+        </tr>
+        {% endfor %}
+
+    </table>
+    
+</body>
+</html>
