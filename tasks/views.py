@@ -16,7 +16,7 @@ def employee_list(request):
     return render (request, 'dashboard/employee_list.html', {'employees':employees})
 
 def my_payroll(request):
-    payroll= Payroll.objects.filter('employee__user=request.user').first()
+    payroll= Payroll.objects.filter(employee__user=request.user).first()
     return render (request, 'dashboard/my_payroll.html', {'payroll':payroll})
 
 def payroll_detail(request, pk):
@@ -63,11 +63,14 @@ def hr_payroll_list(request):
         'search_query' : search
     }
     return render (request, 'dashboard/hr_payroll_list.html', context)
-
+@login_required
 def payroll_history(request):
-    payrolls = Payroll.objects.filter(
-        employee__user=request.user
-    ).order_by('payroll_period')
+    if request.user.is_staff or request.user.is_superuser:
+        payrolls = Payroll.objects.select_related('employee__user'). order_by('-payroll_period')
+    else:
+        payrolls = Payroll.objects.filter(
+            employee__user=request.user
+        ).order_by('payroll_period')
     context = {
         'payrolls' : payrolls
     }
