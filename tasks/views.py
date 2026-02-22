@@ -31,6 +31,18 @@ def payroll_detail(request, pk):
         #and checks if those fields, matched with the user logged in.
         ) 
     return render (request, 'dashboard/payroll_detail.html', {'payroll': payroll})
+@login_required
+def payroll_history(request):
+    if request.user.is_superuser:
+        payrolls = Payroll.objects.select_related('employee__user'). order_by('-payroll_period')
+    else:
+        payrolls = Payroll.objects.filter(
+            employee__user=request.user
+        ).order_by('payroll_period')
+    context = {
+        'payrolls' : payrolls
+    }
+    return render (request, 'dashboard/payroll_history.html', context)
 
 def hr_required(view_func):
     def wrapper(request, *args, **kwargs): # *args collects extra positional arguments. **kwargs collects extra keyword arguments.
@@ -63,18 +75,7 @@ def hr_payroll_list(request):
         'search_query' : search
     }
     return render (request, 'dashboard/hr_payroll_list.html', context)
-@login_required
-def payroll_history(request):
-    if request.user.is_staff or request.user.is_superuser:
-        payrolls = Payroll.objects.select_related('employee__user'). order_by('-payroll_period')
-    else:
-        payrolls = Payroll.objects.filter(
-            employee__user=request.user
-        ).order_by('payroll_period')
-    context = {
-        'payrolls' : payrolls
-    }
-    return render (request, 'dashboard/payroll_history.html', context)
+
 
 @login_required
 def dashboard_redirect(request):

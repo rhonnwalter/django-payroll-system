@@ -23,7 +23,7 @@
         <th>Hours Worked</th>
         <th>Overtime Hours</th>
         <th>Total Pay</th>
-        <th>View</th>
+        <th>Payroll</th>
       </tr>
 
       {% for payroll in page_obj%}
@@ -33,6 +33,7 @@
         <td>{{payroll.hours_worked}}</td>
         <td>{{payroll.overtime_hours}}</td>
         <td>₱{{payroll.total_pay| intcomma}}</td>
+        <td> <a href="{% url 'payroll_detail' payroll.pk%}">View</a></td>
       </tr>
       {% empty %}
       <tr>

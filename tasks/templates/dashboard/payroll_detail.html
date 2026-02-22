@@ -29,11 +29,15 @@
         <td>{{payroll.hours_worked}}</td>
         <td>{{payroll.overtime_hours}}</td>
         <td>₱{{payroll.total_pay| intcomma}}</td>
+        
 
 
     </tr>
 
     </table>
+    <hr>
+    <a href="{% url 'payroll_history' %}">← Back to Payroll History</a>
+  
 
 </body>
 
