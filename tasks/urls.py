@@ -7,9 +7,8 @@ urlpatterns = [
     path('dashboard/employee', views.employee_dashboard, name='employee_dashboard'),
     path('dashboard/hr', views.hr_dashboard, name='hr_dashboard'),
 
-
-    path('payrolls/', views.my_payroll, name='my_payroll'),
-    path('payroll-history/', views.payroll_history, name='payroll_history'),
+    path('payroll-history/<int:employee_id>/', views.payroll_history, name='payroll_history'),
+    path('my-payroll/', views.my_payroll, name='my_payroll'),
     path('payrolls/<int:pk>/', views.payroll_detail, name='payroll_detail'),
     
     path('hrpayrolls/', views.hr_payroll_list, name='hr_payroll_list'),
