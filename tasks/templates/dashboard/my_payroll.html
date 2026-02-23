@@ -16,7 +16,6 @@
             <th>Hours Worked</th>
             <th>Overtime Hours</th>
             <th>Total Pay</th>
-            <th>Payroll History</th>
         </tr>
         
         {% if payroll %}
@@ -25,7 +24,6 @@
             <td>{{payroll.hours_worked}}</td>
             <td>{{payroll.overtime_hours}}</td>
             <td>₱{{payroll.total_pay | intcomma}}</td>
-            <td> <a href="{% url 'payroll_history'%}">View</a></td>
         </tr>
         {% else %} 
         <tr>
@@ -38,7 +36,8 @@
 
 
     </table>
- 
+     <hr>
+    <a href="{% url 'payroll_history' payroll.employee.id %}">Payroll History</a>
     
 </body>
 </html>
