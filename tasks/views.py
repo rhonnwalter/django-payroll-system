@@ -8,6 +8,8 @@ from django.shortcuts import render
 from django.db.models import Q
 from django.core.paginator import Paginator
 from .models import Employee, Payroll
+from django.utils import timezone
+
 
 
 # Create your views here.
@@ -53,9 +55,18 @@ def hr_required(view_func):
 
 @staff_member_required
 @hr_required
+
 def hr_payroll_list(request):
     search = request.GET.get('search', '')
-    payrolls = Payroll.objects.select_related('employee__user').all()
+    
+    now = timezone.now()
+    current_month = now.month
+    current_year = now.year
+
+    payrolls = Payroll.objects.select_related('employee__user').filter(
+        payroll_period__month=current_month,
+        payroll_period__year=current_year
+    )
 
     if search: 
         payrolls = payrolls.filter (
