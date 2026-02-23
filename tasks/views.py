@@ -32,9 +32,9 @@ def payroll_detail(request, pk):
         ) 
     return render (request, 'dashboard/payroll_detail.html', {'payroll': payroll})
 @login_required
-def payroll_history(request):
+def payroll_history(request, employee_id=None):
     if request.user.is_superuser:
-        payrolls = Payroll.objects.select_related('employee__user'). order_by('-payroll_period')
+        payrolls = Payroll.objects.filter(employee_id=employee_id). order_by('-payroll_period')
     else:
         payrolls = Payroll.objects.filter(
             employee__user=request.user
@@ -95,11 +95,12 @@ def hr_dashboard(request):
     if not request.user.is_superuser:
         return redirect('employee_dashboard')
     payrolls = Payroll.objects.annotate(total_pay_expr=Payroll.total_pay_expression())
-
+    total_employees = Employee.objects.count()
     total_payrolls = payrolls.count()
     total_salary = payrolls.aggregate(Sum('total_pay_expr'))['total_pay_expr__sum'] or 0 #['total_pay_expr__sum' grab the actual number from the dictionary.
     context = {
         'payrolls' : payrolls,
+        'total_employees' : total_employees,
         'total_payrolls' : total_payrolls,
         'total_salary' : total_salary
 
