@@ -41,8 +41,12 @@ def payroll_history(request, employee_id=None):
         payrolls = Payroll.objects.filter(
             employee__user=request.user
         ).order_by('payroll_period')
+
+    paginator = Paginator(payrolls, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {
-        'payrolls' : payrolls
+        'page_obj' : page_obj
     }
     return render (request, 'dashboard/payroll_history.html', context)
 
