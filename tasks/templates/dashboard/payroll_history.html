@@ -16,7 +16,7 @@
             <th>View</th>
         </tr>
 
-        {% for payroll in payrolls%}
+        {% for payroll in page_obj%}
         <tr>
             <td>{{payroll.payroll_period}}</td>
             <td>₱{{payroll.total_pay}}</td>
@@ -33,6 +33,22 @@
         {% endfor %}
 
     </table>
-    
+        <div style="magrin-top:20px">
+      {% if page_obj.has_previous%}
+        <a href="?page=1&search={{search_query}}">First</a> <!-- this link brings you to page1 and if there is a search query, results will apply to page 1 also--> 
+        <a href="?page={{ page_obj.previous_page_number }}&search={{ search_query}}">Last</a>
+      
+      {% endif %}
+
+      Page {{ page_obj.number }} of {{ page_obg.paginator.num_pages}}
+
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&search={{ search_query}}">Next</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}&search={{ search_query}}">Last</a>
+        
+      {% endif %}
+
+
+    </div>
 </body>
 </html>
