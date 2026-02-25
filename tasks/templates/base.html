@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payroll System</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            margin: 40px;
+
+        }
+        nav a {
+            margin-right: 15px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .card {
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+
+    </style>
+</head>
+<body>
+   
+    <h1>Company Payroll System</h1>
+    <nav>
+        {% if user.is_authenticated %}
+            {% if user.is_superuser %}
+                <a href="{% url 'hr_dashboard'%}">Dashboard</a>
+                <a href="{% url 'employee_list' %}">Employee List</a>
+            {% else %}
+                <a href="{% url 'employee_dashboard' %}">Employee Dashboard</a>
+                <a href="{% url 'my_payroll' %}">Payroll</a>
+            {% endif %}
+            <a href="{% url 'logout'%}">Logout </a>
+        {% endif %}
+    </nav>
+    <hr>
+    {% block content %}
+    {% endblock %}
+</body>
+</html>
