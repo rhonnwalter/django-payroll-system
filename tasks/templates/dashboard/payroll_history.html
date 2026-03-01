@@ -43,8 +43,8 @@
       Page {{ page_obj.number }} of {{ page_obg.paginator.num_pages}}
 
       {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}&search={{ search_query}}">Next</a>
-        <a href="?page={{ page_obj.paginator.num_pages }}&search={{ search_query}}">Last</a>
+        <a href="?page={{ page_obj.next_page_number }}">Next</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}">Last</a>
         
       {% endif %}
 
