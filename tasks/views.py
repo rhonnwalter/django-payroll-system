@@ -10,6 +10,7 @@ from django.core.paginator import Paginator
 from .models import Employee, Payroll
 from django.utils import timezone
 from .forms import PayrollForm
+from .forms import EmployeeForm
 def hr_required(view_func):
     def wrapper(request, *args, **kwargs): # *args collects extra positional arguments. **kwargs collects extra keyword arguments.
         if not request.user.is_superuser: 
@@ -100,6 +101,19 @@ def hr_payroll_list(request):
     }
     return render (request, 'dashboard/hr_payroll_list.html', context)
 
+login_required
+@user_passes_test(hr_required)
+def create_employee(request):
+    if request.method == "POST":
+        form = EmployeeForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect ('employee_list')
+    else:
+        form = EmployeeForm()
+    return render(request, 'dashboard/create_employee.html', {'form': form} )  
+       
+
 @login_required
 @user_passes_test(hr_required)
 def create_payroll(request):
@@ -111,6 +125,7 @@ def create_payroll(request):
     else:
         form = PayrollForm()
     return render(request, 'dashboard/create_payroll.html', {'form': form})
+
 
 
 
