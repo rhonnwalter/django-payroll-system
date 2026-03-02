@@ -39,6 +39,14 @@ def payroll_detail(request, pk):
         #and checks if those fields, matched with the user logged in.
         ) 
     return render (request, 'dashboard/payroll_detail.html', {'payroll': payroll})
+
+@staff_member_required
+def mark_paid(request, pk):
+    payroll = get_object_or_404(Payroll, pk=pk)
+    payroll.status = 'paid'
+    payroll.save()
+    return redirect ('hr_payroll_list')
+
 @login_required
 def payroll_history(request, employee_id=None):
     if request.user.is_superuser:
