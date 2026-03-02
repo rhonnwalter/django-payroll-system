@@ -25,6 +25,7 @@
         <th>Overtime Hours</th>
         <th>Total Pay</th>
         <th>Payroll</th>
+        <th>Status</th>
       </tr>
 
       {% for payroll in page_obj%}
@@ -35,6 +36,11 @@
         <td>{{payroll.overtime_hours}}</td>
         <td>₱{{payroll.total_pay| intcomma}}</td>
         <td> <a href="{% url 'payroll_detail' payroll.pk%}">View</a></td>
+        {% if user.is_staff and payroll.status != 'paid' %} 
+          <td>{{payroll.status|capfirst}} <a href="{% url 'mark_paid' payroll.pk  %}">Mark as Paid</a></td>
+        {% else %}
+          <td>{{payroll.status|capfirst}}</td>
+        {% endif %}
       </tr>
       {% empty %}
       <tr>

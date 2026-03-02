@@ -12,7 +12,9 @@ urlpatterns = [
     path('payrolls/<int:pk>/', views.payroll_detail, name='payroll_detail'),
     
     path('hrpayrolls/', views.hr_payroll_list, name='hr_payroll_list'),
-
+    path('create-payroll/', views.create_payroll, name='create_payroll'),
+    path('mark-paid/<int:pk>', views.mark_paid, name='mark_paid'),
+    
     path('dashboard/employees/', views.employee_list, name='employee_list'),
 
 
