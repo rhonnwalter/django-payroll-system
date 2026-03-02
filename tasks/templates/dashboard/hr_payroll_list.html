@@ -37,7 +37,7 @@
         <td>₱{{payroll.total_pay| intcomma}}</td>
         <td> <a href="{% url 'payroll_detail' payroll.pk%}">View</a></td>
         {% if user.is_staff and payroll.status != 'paid' %} 
-          <td>{{payroll.status|capfirst}} <a href="{% url 'mark_paid' payroll.pk  %}">Mark as Paid</a></td>
+          <td>{{payroll.get_status_display}} <a href="{% url 'mark_paid' payroll.pk  %}">Mark as Paid</a></td>
         {% else %}
           <td>{{payroll.status|capfirst}}</td>
         {% endif %}
