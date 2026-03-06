@@ -101,13 +101,23 @@ def hr_payroll_list(request):
     }
     return render (request, 'dashboard/hr_payroll_list.html', context)
 
+from django.contrib.auth.models import User
 login_required
 @user_passes_test(hr_required)
 def create_employee(request):
     if request.method == "POST":
         form = EmployeeForm(request.POST)
         if form.is_valid():
-            form.save()
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+
+            user = User.objects.create_user(
+                username=username,
+                password=password
+            )
+            employee = form.save(commit=False)
+            employee.user = user
+            employee.save()
             return redirect ('employee_list')
     else:
         form = EmployeeForm()
