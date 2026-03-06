@@ -12,10 +12,12 @@ class PayrollForm(forms.ModelForm):
         ]
             
 class EmployeeForm(forms.ModelForm):
+    username = forms.CharField(
+    password = forms.CharField(widget=forms.PasswordInput)
+    )
     class Meta:  
         model = Employee
         fields = [   
-                'user',
                 'employee_id',
                 'position',
                 'hourly_rate'
