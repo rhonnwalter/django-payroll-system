@@ -23,6 +23,20 @@ def hr_required(view_func):
 def employee_list(request):
     employees = Employee.objects.all()
     return render (request, 'dashboard/employee_list.html', {'employees':employees})
+
+@login_required
+def employee_payrolls(request, employee_id):
+    employee = get_object_or_404(Employee, id=employee_id)
+
+    if not request.user.is_superuser and request.user !=employee.user:
+            return render(request, 'dashboard/not_authorized.html')
+    
+    payrolls = Payroll.objects.filter(employee=employee).order_by('-payroll_period')
+
+    return render(request, 'dashboard/payroll/employee_payrolls.html', {
+        'employee' : employee,
+        'payrolls': payrolls
+    })
 @login_required
 def my_payroll(request):
     payroll= Payroll.objects.filter(employee__user=request.user).first()
