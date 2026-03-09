@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=h2, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h2>Payroll Records for {{ employee.user.username }}</h2>
+
+    <table border="1">
+        <tr>
+            <th>Payroll ID</th>
+            <th>Total Pay</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+        
+        {% for payroll in payrolls %}
+        <tr>
+            <td>{{ payroll.id }}</td>
+            <td>{{ payroll.total_pay }}</td>
+            <td>{{ payroll.status}}</td>
+
+            <td>
+                <a href="{% url 'payroll_detail' payroll.id %}">View Details</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No Payrolls found</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
