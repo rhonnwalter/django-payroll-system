@@ -37,7 +37,7 @@
     </table>
     {% if request.user.is_superuser %}
         <hr>
-        <a href="{% url 'payroll_history' payroll.id %}">Payroll History</a>
+        <a href="{% url 'payroll_history' payroll.employee.id %}">Payroll History</a>
     {% endif %}
   
 

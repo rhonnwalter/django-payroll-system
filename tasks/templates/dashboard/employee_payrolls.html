@@ -1,3 +1,4 @@
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,9 +19,9 @@
         
         {% for payroll in payrolls %}
         <tr>
-            <td>{{ payroll.id }}</td>
-            <td>{{ payroll.total_pay }}</td>
-            <td>{{ payroll.status}}</td>
+            <td>{{payroll.id }}</td>
+            <td>₱{{payroll.total_pay| intcomma}}</td>
+            <td>{{payroll.status}}</td>
 
             <td>
                 <a href="{% url 'payroll_detail' payroll.id %}">View Details</a>
