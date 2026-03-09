@@ -33,7 +33,7 @@ def employee_payrolls(request, employee_id):
     
     payrolls = Payroll.objects.filter(employee=employee).order_by('-payroll_period')
 
-    return render(request, 'dashboard/payroll/employee_payrolls.html', {
+    return render(request, 'dashboard/employee_payrolls.html', {
         'employee' : employee,
         'payrolls': payrolls
     })
