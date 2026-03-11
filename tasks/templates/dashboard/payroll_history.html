@@ -20,7 +20,7 @@
         <tr>
             <td>{{payroll.payroll_period}}</td>
             <td>₱{{payroll.total_pay}}</td>
-            <td>{{payroll.status}}</td>
+            <td>{{payroll.get_status_display}}</td>
             <td>
                 <a href="{% url 'payroll_detail' payroll.id%}">View</a>
             </td>

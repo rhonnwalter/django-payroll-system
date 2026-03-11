@@ -28,7 +28,7 @@
                 <td>{{ employee.position}}</td>
 
                 <td>
-                    <a href="{% url 'payroll_detail' pk=employee.id %}"> View Payroll</a>
+                    <a href="{% url 'employee_payrolls' employee.id %}"> View Payroll</a>
 
                 </td>
                 

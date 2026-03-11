@@ -25,6 +25,19 @@ class Employee(models.Model):
     def __str__(self):
         return f"{self.employee_id} - {self.user.username}"
     
+class Attendance(models.Model):
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    date = models.DateField
+
+    time_in = models.TimeField()
+    time_out = models.TimeField()
+    
+    hours_worked = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2,
+        validators=[validate_half_hour]
+        )
+    
 class Payroll(models.Model):
     employee = models.ForeignKey(Employee ,on_delete=models.CASCADE)
     payroll_period = models.DateField(default=date.today)
@@ -54,7 +67,7 @@ class Payroll(models.Model):
     
     
     def total_pay(self):
-        overtime_rate = self.employee.hourly_rate * Decimal ('1.25') 
+        overtime_rate = self.employee.hourly_rate * Decimal ('1.5') 
         total = (
             self.hours_worked * self.employee.hourly_rate + 
             self.overtime_hours * overtime_rate
