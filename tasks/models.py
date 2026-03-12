@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from decimal import Decimal, ROUND_HALF_UP
 from django.core.exceptions import ValidationError
 from datetime import date
-from django.db.models import F, ExpressionWrapper, DecimalField
+from django.db.models import F, ExpressionWrapper, DecimalField, Case, When, Value
 
 
 
@@ -91,7 +91,7 @@ class Payroll(models.Model):
         validators=[validate_half_hour]
         ) 
     
-    
+    @property
     def total_pay(self):
         
         if self.employee.pay_type == "hourly":
@@ -104,15 +104,34 @@ class Payroll(models.Model):
             total = self.employee.salary_per_period
         else:
             total = Decimal('0.00')
-            
+
         return total.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) #sets the precision as 2. decimal places.
+    
     @classmethod #decorator
     def total_pay_expression(cls):
         return ExpressionWrapper(
-            F('hours_worked') * F('employee__hourly_rate') + # F is way of referring to modelfields in the db query
-            F('overtime_hours') * F('employee__hourly_rate') * Decimal('1.5'),
-            output_field=DecimalField(max_digits=10, decimal_places=2)
-        )
+            Case(
+                When(employee__pay_type="hourly",
+                     then=(F('total_regular_hours')  * F('employee__hourly_rate') +
+                     F('total_overtime_hours') * F('overtime_rate')
+                    )
+                ),
+                When(employee__pay_type="salary",
+                    then=(F('employee__salary_per_period') 
+                    ) 
+                ),
+                default=Value(Decimal('0.00'))
+            
+            ), 
+            output_field=DecimalField(max_digits=10, decimal_places=2)  
+         
+         )
+
+
+    
+        
+        
+    
   
     
     class Meta:
