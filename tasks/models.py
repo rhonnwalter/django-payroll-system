@@ -14,10 +14,18 @@ def validate_half_hour(value): #validator for decimal .50 in hours_worked and ov
     
 
 class Employee(models.Model):
+    PAY_TYPE_CHOICES = [
+        ("hourly", "Hourly"),
+        ("salary", "Salary"),
+    ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     employee_id = models.CharField(max_length=20, unique=True)
+
     position  =models.CharField(max_length=100)
-    hourly_rate = models.DecimalField(max_digits=8, decimal_places=2)
+    pay_type = models.CharField(max_length=10, choices=PAY_TYPE_CHOICES)
+
+    hourly_rate = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+    salary_per_period = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     is_active = models.BooleanField(default = True)
     date_hired = models.DateTimeField(auto_now_add=True)
