@@ -48,7 +48,25 @@ class Attendance(models.Model):
     
 class Payroll(models.Model):
     employee = models.ForeignKey(Employee ,on_delete=models.CASCADE)
-    payroll_period = models.DateField(default=date.today)
+
+    payroll_period_start = models.DateField()
+    payroll_period_end = models.DateField()
+
+    total_regular_hours = models.DecimalField(
+        max_digits=6, 
+        decimal_places=2,
+        validators=validate_half_hour,
+        default=0
+    )
+    
+    total_overtime_hours = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        validators=validate_half_hour,
+        default=0
+        
+    )
+
     created_at = models.DateField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now= True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
@@ -75,12 +93,18 @@ class Payroll(models.Model):
     
     
     def total_pay(self):
-        overtime_rate = self.employee.hourly_rate * Decimal ('1.5') 
-        total = (
-            self.hours_worked * self.employee.hourly_rate + 
-            self.overtime_hours * overtime_rate
-
-        )
+        
+        if self.employee.pay_type == "hourly":
+            overtime_rate = self.employee.hourly_rate * Decimal(1.5)
+            total = (
+                self.total_regular_hours * self.employee.hourly_rate +
+                self.total_overtime_hours * overtime_rate
+            )
+        elif self.employee.pay_type == "salary":
+            total = self.employee.salary_per_period
+        else:
+            total = Decimal('0.00')
+            
         return total.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) #sets the precision as 2. decimal places.
     @classmethod #decorator
     def total_pay_expression(cls):
