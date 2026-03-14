@@ -1,5 +1,4 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse
 from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect
@@ -7,10 +6,11 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render
 from django.db.models import Q
 from django.core.paginator import Paginator
-from .models import Employee, Payroll
+from .models import Employee, Payroll, Attendance
 from django.utils import timezone
-from .forms import PayrollForm
-from .forms import EmployeeForm
+from .forms import PayrollForm, EmployeeForm, GeneratePayrollForm
+from decimal import Decimal
+
 def hr_required(view_func):
     def wrapper(request, *args, **kwargs): # *args collects extra positional arguments. **kwargs collects extra keyword arguments.
         if not request.user.is_superuser: 
@@ -149,6 +149,53 @@ def create_payroll(request):
     else:
         form = PayrollForm()
     return render(request, 'dashboard/create_payroll.html', {'form': form})
+
+@login_required
+@user_passes_test(hr_required)
+def generate_payroll(request):
+    if request.methond == "POST":
+        form = GeneratePayrollForm(request.POST)
+        if form.is_valid():
+            start_date = form.cleaned_data['start_date']
+            end_date = form.cleaned_data['end_date']
+
+            employees = Employee.objects.filter(is_active=True)
+
+            for employee in employees:
+                total_regular = Decimal("0.00")
+                total_ot = Decimal("0.00")
+                
+                if employee.pay_type == "hourly":
+                    attendance_records = Attendance.objects.filter(
+                        employee=employee,
+                        date_range=[start_date, end_date]
+                    )
+                
+            payroll = Payroll(
+                employee=employee,
+                payroll_period_start=start_date,
+                payroll_period_end=end_date,
+                total_regular_hours=total_regular,
+                total_overtime_hours=total_ot
+            )
+            
+            gross_pay = payroll.total_pay()
+            payroll.gross_pay = gross_pay
+            payroll.net_pay = gross_pay
+
+            if not Payroll.objects.filter(
+                employee=employee,
+                payroll_period_start=start_date,
+                payroll_period_end=end_date
+            ).exists():
+                payroll.save()
+        
+        return redirect("hr_dashboard")
+    else: 
+        form = GeneratePayrollForm()
+    
+    return render (request, "dashboard/generate_payroll.html", {"form": form})
+    
 
 
 
