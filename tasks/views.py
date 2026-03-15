@@ -162,33 +162,45 @@ def generate_payroll(request):
             employees = Employee.objects.filter(is_active=True)
 
             for employee in employees:
-                total_regular = Decimal("0.00")
-                total_ot = Decimal("0.00")
-                
-                if employee.pay_type == "hourly":
-                    attendance_records = Attendance.objects.filter(
+                if Payroll.objects.filter(
                         employee=employee,
-                        date_range=[start_date, end_date]
-                    )
+                        payroll_period_start=start_date,
+                        payroll_period_end=end_date
+                    ).exists():
+                    total_regular = Decimal("0.00")
+                    total_overtime = Decimal("0.00")
+                    
+                    if employee.pay_type == "hourly":
+                        attendance_records = Attendance.objects.filter(
+                            employee=employee,
+                            date_range=[start_date, end_date]
+                        )
+                        total_regular = sum(a.regular_hours for a in attendance_records)
+                        total_overtime = sum(a.overtime_hours for a in attendance_records)
+                    elif employee.pay_type == "salary":
+                        total_regular = Decimal("0.00")
+                        total_overtime = Decimal("0.00")
                 
-            payroll = Payroll(
-                employee=employee,
-                payroll_period_start=start_date,
-                payroll_period_end=end_date,
-                total_regular_hours=total_regular,
-                total_overtime_hours=total_ot
-            )
-            
-            gross_pay = payroll.total_pay()
-            payroll.gross_pay = gross_pay
-            payroll.net_pay = gross_pay
 
-            if not Payroll.objects.filter(
-                employee=employee,
-                payroll_period_start=start_date,
-                payroll_period_end=end_date
-            ).exists():
-                payroll.save()
+                    
+                payroll = Payroll(
+                    employee=employee,
+                    payroll_period_start=start_date,
+                    payroll_period_end=end_date,
+                    total_regular_hours=total_regular,
+                    total_overtime_hours=total_overtime
+                )
+                
+                gross_pay = payroll.total_pay()
+                payroll.gross_pay = gross_pay
+                payroll.net_pay = gross_pay
+
+                if not Payroll.objects.filter(
+                    employee=employee,
+                    payroll_period_start=start_date,
+                    payroll_period_end=end_date
+                ).exists():
+                    payroll.save()
         
         return redirect("hr_dashboard")
     else: 

@@ -11,7 +11,7 @@ class PayrollForm(forms.ModelForm):
             'overtime_hours',
         ]
 
-class GeneratePayrollForm(forms.Modelform):
+class GeneratePayrollForm(forms.Form):
     start_date = forms.DateField(
         widget=forms.DateInput(attrs={'type':'date'}),
         label="Payroll_Start_Date"

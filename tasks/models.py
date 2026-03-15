@@ -40,11 +40,18 @@ class Attendance(models.Model):
     time_in = models.TimeField()
     time_out = models.TimeField()
     
-    hours_worked = models.DecimalField(
+    regular_hours = models.DecimalField(
         max_digits=5, 
         decimal_places=2,
-        validators=[validate_half_hour]
+        validators=[validate_half_hour],
+        default=0 
         )
+    overtime_hours = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[validate_half_hour],
+        default=0
+    )
     
 class Payroll(models.Model):
     employee = models.ForeignKey(Employee ,on_delete=models.CASCADE)
@@ -66,7 +73,7 @@ class Payroll(models.Model):
         default=0
         
     )
-
+    
     gross_pay = models.DecimalField(max_digits=10, decimal_places=2)
     net_pay = models.DecimalField(max_digits=10, decimal_places=2)
 
