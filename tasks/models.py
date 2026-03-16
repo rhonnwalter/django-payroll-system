@@ -26,6 +26,8 @@ class Employee(models.Model):
 
     hourly_rate = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     salary_per_period = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    overtime_multiplier = models.DecimalField(max_digits=3, decimal_places=2, default=1.5)
+    
 
     is_active = models.BooleanField(default = True)
     date_hired = models.DateTimeField(auto_now_add=True)
@@ -35,7 +37,7 @@ class Employee(models.Model):
     
 class Attendance(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
-    date = models.DateField
+    date = models.DateField()
 
     time_in = models.TimeField()
     time_out = models.TimeField()
@@ -52,6 +54,7 @@ class Attendance(models.Model):
         validators=[validate_half_hour],
         default=0
     )
+
     
 class Payroll(models.Model):
     employee = models.ForeignKey(Employee ,on_delete=models.CASCADE)
@@ -88,19 +91,6 @@ class Payroll(models.Model):
 
     status = models.CharField(max_length=10, choices=status_choices, default='pending' )
 
-
-    hours_worked = models.DecimalField(
-        max_digits=5, 
-        decimal_places=2, 
-        validators=[validate_half_hour]
-        ) #validators validates the input if applicable to decimal .50
-    
-    overtime_hours = models.DecimalField(
-        max_digits=5, 
-        decimal_places=2, 
-        default=0, 
-        validators=[validate_half_hour]
-        ) 
     
     @property
     def total_pay(self):
@@ -109,7 +99,7 @@ class Payroll(models.Model):
             overtime_rate = self.employee.hourly_rate * Decimal(1.5)
             total = (
                 self.total_regular_hours * self.employee.hourly_rate +
-                self.total_overtime_hours * overtime_rate
+                self.total_overtime_hours * self.employee.overtime_multiplier
             )
         elif self.employee.pay_type == "salary":
             total = self.employee.salary_per_period
@@ -124,7 +114,7 @@ class Payroll(models.Model):
             Case(
                 When(employee__pay_type="hourly",
                      then=(F('total_regular_hours')  * F('employee__hourly_rate') +
-                     F('total_overtime_hours') * F('overtime_rate')
+                     F('total_overtime_hours') * F('employee__overtime_multiplier')
                     )
                 ),
                 When(employee__pay_type="salary",
