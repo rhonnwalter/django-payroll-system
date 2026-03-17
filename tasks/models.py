@@ -77,6 +77,13 @@ class Payroll(models.Model):
         
     )
     
+    sss = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    philhealth = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    pagibig = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    tax = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+
+
     gross_pay = models.DecimalField(max_digits=10, decimal_places=2)
     net_pay = models.DecimalField(max_digits=10, decimal_places=2)
 
@@ -91,50 +98,6 @@ class Payroll(models.Model):
 
     status = models.CharField(max_length=10, choices=status_choices, default='pending' )
 
-    
-    @property
-    def total_pay(self):
-        
-        if self.employee.pay_type == "hourly":
-            overtime_rate = self.employee.hourly_rate * Decimal(1.5)
-            total = (
-                self.total_regular_hours * self.employee.hourly_rate +
-                self.total_overtime_hours * self.employee.overtime_multiplier
-            )
-        elif self.employee.pay_type == "salary":
-            total = self.employee.salary_per_period
-        else:
-            total = Decimal('0.00')
-
-        return total.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) #sets the precision as 2. decimal places.
-    
-    @classmethod #decorator
-    def total_pay_expression(cls):
-        return ExpressionWrapper(
-            Case(
-                When(employee__pay_type="hourly",
-                     then=(F('total_regular_hours')  * F('employee__hourly_rate') +
-                     F('total_overtime_hours') * F('employee__overtime_multiplier')
-                    )
-                ),
-                When(employee__pay_type="salary",
-                    then=(F('employee__salary_per_period') 
-                    ) 
-                ),
-                default=Value(Decimal('0.00'))
-            
-            ), 
-            output_field=DecimalField(max_digits=10, decimal_places=2)  
-         
-         )
-
-
-    
-        
-        
-    
-  
-    
     class Meta:
         unique_together = ('employee', 'payroll_period')
         ordering = ['-payroll_period']
