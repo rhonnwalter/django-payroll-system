@@ -34,6 +34,17 @@ def total_pay_expression():
          
          )
 
+def compute_sss_employee_share(gross_pay):
+    sss_table = [
+            (4250, 180), (500, 225), (10000, 450),
+            (20000, 900), (30000, 1350)
+        ]
+
+    for salary, contribution in sss_table:
+      if gross_pay <= salary:
+        return Decimal(contribution)
+      
+    return Decimal("1350")
 
 def compute_income_tax(gross_pay):
       
@@ -49,3 +60,4 @@ def compute_income_tax(gross_pay):
             return (gross_pay - Decimal("166666")) * Decimal("0.30")
       else:
         return Decimal("183541.67") + (gross_pay - Decimal("666667")) * Decimal("0.35")
+      
