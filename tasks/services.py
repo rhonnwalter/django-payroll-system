@@ -46,6 +46,18 @@ def compute_sss_employee_share(gross_pay):
       
     return Decimal("1350")
 
+def compute_philhealth(gross_pay):
+    employee = gross_pay * Decimal("0.015")
+    employer = gross_pay * Decimal("0.015") 
+    return {"Employee" : employee, "Employer" : employer}
+
+def compute_pagibig(gross_pay):
+     employee = min(gross_pay * Decimal("0.02"), Decimal("100"))
+     employer = gross_pay * Decimal("0.02")
+     return {"Employee":employee, "Employer":employer}
+
+
+     
 def compute_income_tax(gross_pay):
       
       if gross_pay <= 20833:
