@@ -36,7 +36,7 @@ def total_pay_expression():
 
 def compute_sss_employee_share(gross_pay):
     sss_table = [
-            (4250, 180), (500, 225), (10000, 450),
+            (4250, 180), (5000, 225), (10000, 450),
             (20000, 900), (30000, 1350)
         ]
 
@@ -56,10 +56,24 @@ def compute_pagibig(gross_pay):
      employer = gross_pay * Decimal("0.02")
      return {"Employee":employee, "Employer":employer}
 
+def compute_total_deductions(gross_pay):
+     sss = compute_sss_employee_share(gross_pay)
+     philhealth = compute_philhealth(gross_pay)["Employee"]  
+     pagibig = compute_pagibig(gross_pay)["Employee"]
 
-     
+     tax = compute_income_tax(gross_pay)
+     total_deductions = sss + philhealth + pagibig + tax
+
+     return {
+          "sss":sss,
+          "philhealth":philhealth,
+          "pagibig":pagibig,
+          "tax":tax,
+          "total":total_deductions
+     }
+
 def compute_income_tax(gross_pay):
-      
+         
       if gross_pay <= 20833:
             return Decimal("0.00")
       elif gross_pay <= 33332:
@@ -68,8 +82,13 @@ def compute_income_tax(gross_pay):
             return (gross_pay - Decimal("33332")) * Decimal("0.20")
       elif gross_pay <= 166666:
             return (gross_pay - Decimal("66666")) * Decimal("0.25")
-      elif gross_pay > 666667:
+      elif gross_pay <= 666667:
             return (gross_pay - Decimal("166666")) * Decimal("0.30")
       else:
         return Decimal("183541.67") + (gross_pay - Decimal("666667")) * Decimal("0.35")
       
+def compute_netpay(gross_pay):
+     deductions = compute_total_deductions
+     net = gross_pay - deductions["total"]
+
+     return net.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP), deductions
