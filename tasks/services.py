@@ -88,7 +88,7 @@ def compute_income_tax(gross_pay):
         return Decimal("183541.67") + (gross_pay - Decimal("666667")) * Decimal("0.35")
       
 def compute_netpay(gross_pay):
-     deductions = compute_total_deductions
+     deductions = compute_total_deductions(gross_pay)
      net = gross_pay - deductions["total"]
 
      return net.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP), deductions
