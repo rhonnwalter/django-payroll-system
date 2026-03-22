@@ -7,8 +7,8 @@ class PayrollForm(forms.ModelForm):
         model = Payroll
         fields = [
             'employee',
-            'hours_worked',
-            'overtime_hours',
+            'total_regular_hours',
+            'total_overtime_hours',
         ]
 
 class GeneratePayrollForm(forms.Form):
