@@ -10,6 +10,7 @@ from .models import Employee, Payroll, Attendance
 from django.utils import timezone
 from .forms import PayrollForm, EmployeeForm, GeneratePayrollForm
 from decimal import Decimal
+from .services import compute_total_pay, compute_total_deductions, compute_netpay
 
 def hr_required(view_func):
     def wrapper(request, *args, **kwargs): # *args collects extra positional arguments. **kwargs collects extra keyword arguments.
@@ -175,27 +176,35 @@ def generate_payroll(request):
                     employee=employee,
                     date__range=[start_date, end_date]
                     )
-                    total_regular = sum(a.regular_hours for a in attendance_records)
-                    total_overtime = sum(a.overtime_hours for a in attendance_records)
+                    total_regular = Decimal(sum(a.regular_hours for a in attendance_records))
+                    total_overtime = Decimal(sum(a.overtime_hours for a in attendance_records))
 
-                    gross_pay = payroll.total_pay()
+                    gross_pay = compute_total_pay(employee, total_regular, total_overtime)
 
                 elif employee.pay_type == "salary":
-                    gross_pay = employee.salary_per_period()
+                    total_regular = Decimal("0.00")
+                    total_overtime = Decimal("0.00")
+                    gross_pay = employee.salary_per_period
                 
                 else:
                     continue
+                
+                net_pay, deductions = compute_netpay(gross_pay)
 
                 payroll = Payroll(
                     employee=employee,
                     payroll_period_start=start_date,
                     payroll_period_end=end_date,
                     total_regular_hours=total_regular,
-                    total_overtime_hours=total_overtime
+                    total_overtime_hours=total_overtime,
+                    gross_pay=gross_pay,
+                    net_pay=net_pay
                 )
+                payroll.sss = deductions["sss"]
+                payroll.philhealth = deductions["philhealth"]
+                payroll.pagibig = deductions["pagibig"]
+                payroll.tax = deductions['tax']
 
-                payroll.gross_pay = gross_pay
-                payroll.net_pay = gross_pay
                 payroll.save()
 
         
@@ -205,10 +214,6 @@ def generate_payroll(request):
     
     return render (request, "dashboard/generate_payroll.html", {"form": form})
     
-
-
-
-
 
 @login_required
 def dashboard_redirect(request):
