@@ -38,9 +38,6 @@ class Employee(models.Model):
 class Attendance(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     date = models.DateField()
-
-    time_in = models.TimeField()
-    time_out = models.TimeField()
     
     regular_hours = models.DecimalField(
         max_digits=5, 
@@ -55,6 +52,13 @@ class Attendance(models.Model):
         default=0
     )
 
+    class Meta:
+        unique_together = ('employee', 'date')
+        ordering = ['-date']
+
+def __str__(self):
+    return f"{self.employee.username} - {self.date}"
+
     
 class Payroll(models.Model):
     employee = models.ForeignKey(Employee ,on_delete=models.CASCADE)
@@ -65,14 +69,14 @@ class Payroll(models.Model):
     total_regular_hours = models.DecimalField(
         max_digits=6, 
         decimal_places=2,
-        validators=validate_half_hour,
+        validators=[validate_half_hour],
         default=0
     )
     
     total_overtime_hours = models.DecimalField(
         max_digits=6,
         decimal_places=2,
-        validators=validate_half_hour,
+        validators=[validate_half_hour],
         default=0
         
     )
@@ -99,8 +103,8 @@ class Payroll(models.Model):
     status = models.CharField(max_length=10, choices=status_choices, default='pending' )
 
     class Meta:
-        unique_together = ('employee', 'payroll_period')
-        ordering = ['-payroll_period']
+        unique_together = ('employee', 'payroll_period_start', 'payroll_period_end')
+        ordering = ['-payroll_period_start']
     
 
 
