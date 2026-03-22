@@ -1,16 +1,11 @@
 from django import forms
-from .models import Payroll
+from .models import Attendance
 from .models import Employee
 
-class PayrollForm(forms.ModelForm):
-    class Meta:
-        model = Payroll
-        fields = [
-            'employee',
-            'total_regular_hours',
-            'total_overtime_hours',
-        ]
-
+class AttendanceForm(forms.ModelForm):
+    class meta:
+       model = Attendance
+       fields = ['employee', 'date','regular_hours', 'overtime_hours']
 class GeneratePayrollForm(forms.Form):
     start_date = forms.DateField(
         widget=forms.DateInput(attrs={'type':'date'}),
