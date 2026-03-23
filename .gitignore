@@ -1,4 +1,7 @@
-payroll_project/
-├── manage.py
-├── models.py
-└── db.sqlite3
+*.sqlite3
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.env
+/migrations/
