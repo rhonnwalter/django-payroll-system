@@ -8,7 +8,7 @@ from django.db.models import Q
 from django.core.paginator import Paginator
 from .models import Employee, Payroll, Attendance
 from django.utils import timezone
-from .forms import PayrollForm, EmployeeForm, GeneratePayrollForm
+from .forms import EmployeeForm, GeneratePayrollForm
 from decimal import Decimal
 from .services import compute_total_pay, compute_total_deductions, compute_netpay
 
@@ -139,17 +139,7 @@ def create_employee(request):
     return render(request, 'dashboard/create_employee.html', {'form': form} )  
        
 
-@login_required
-@user_passes_test(hr_required)
-def create_payroll(request):
-    if request.method == "POST":
-        form = PayrollForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect ('hr_payroll_list')
-    else:
-        form = PayrollForm()
-    return render(request, 'dashboard/create_payroll.html', {'form': form})
+
 
 @login_required
 @user_passes_test(hr_required)
