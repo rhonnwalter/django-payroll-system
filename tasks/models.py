@@ -18,11 +18,36 @@ class Employee(models.Model):
         ("hourly", "Hourly"),
         ("salary", "Salary"),
     ]
+    DEPARTMENT_TYPE_CHOICES = [
+        ("DEV", "Software Development"),
+        ("OPS", "IT Operations"),
+        ("SEC", "Cybersecurity"),
+        ("DATA", "Data & Analytics"),
+
+        ("SUP", "Technical Support"),
+        ("HR", "Human Resources"),
+        ("FIN", "Finance"),
+        ('SAL', 'Sales & Marketing'),
+        ('PM', 'Project Management'),
+        ('QA', 'Quality Assurance'),
+        ('ADM', 'Administrative Services'),
+        ('JAN', 'Janitorial Services'),
+        ('SECUR', 'Security Services'),
+        ('CALL', 'Call Center / BPO'),
+        ('PAY', 'Payroll Services'),
+    ]
+    EMPLOYEE_TYPE_CHOICES = [
+        ('FULLTIME', 'Fulltime'),
+        ('PARTTIME', 'Part time'),
+        ('INTERN', 'Intern'),
+    ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     employee_id = models.CharField(max_length=20, unique=True)
 
     position  =models.CharField(max_length=100)
-    pay_type = models.CharField(max_length=10, choices=PAY_TYPE_CHOICES)
+    department = models.CharField(max_length=10, choices=DEPARTMENT_TYPE_CHOICES, default='DEV')
+    employee_type = models.CharField(max_length=10, choices=EMPLOYEE_TYPE_CHOICES, default='FULLTIME')
+    pay_type = models.CharField(max_length=10, choices=PAY_TYPE_CHOICES, default='hourly')
 
     hourly_rate = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     salary_per_period = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
@@ -63,8 +88,8 @@ def __str__(self):
 class Payroll(models.Model):
     employee = models.ForeignKey(Employee ,on_delete=models.CASCADE)
 
-    payroll_period_start = models.DateField()
-    payroll_period_end = models.DateField()
+    payroll_period_start = models.DateField(null=True, blank=True)
+    payroll_period_end = models.DateField(null=True, blank=True)
 
     total_regular_hours = models.DecimalField(
         max_digits=6, 
@@ -88,8 +113,8 @@ class Payroll(models.Model):
 
 
 
-    gross_pay = models.DecimalField(max_digits=10, decimal_places=2)
-    net_pay = models.DecimalField(max_digits=10, decimal_places=2)
+    gross_pay = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    net_pay = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     created_at = models.DateField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now= True)
