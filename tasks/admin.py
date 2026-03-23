@@ -1,23 +1,36 @@
 from django.contrib import admin
-from .models import Employee, Payroll
+from .models import Employee, Payroll, Attendance
 
 # Register your models here.
+
 class EmployeeAdmin(admin.ModelAdmin):
     list_display = (
         'user',
         'position',
         'hourly_rate',
+        'department',
+        'employee_type',
         'is_active',
         'date_hired',
         )
+class AttendanceAdmin(admin.ModelAdmin):
+    list_display = (
+        'employee',
+        'date',
+        'regular_hours',
+        'overtime_hours'
+    )
+    list_filter = ('date', 'employee')
+    search_fields = ('employee__user__username',)
+    ordering = ('-date',)
 
 class PayrollAdmin(admin.ModelAdmin):
     list_display = (
         'employee',
-        'payroll_period', 
+        'payroll_period_start', 
         'status',
-        'total_pay',
-        'created_by',
+        'gross_pay',
+        'net_pay',
         'created_at',
         'updated_at'
         
@@ -30,16 +43,17 @@ class PayrollAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at','created_by')
     #Prevents accidentally changing the timestamp.
 
-    list_filter = ('status','payroll_period', 'created_at', )
+    list_filter = ('status','payroll_period_start', 'created_at')
     #Lets you filter payrolls by period or creation date quickly.
-    search_fields = ('employee__first_name', 'employee__last_name', 'payroll_period')
+    search_fields = ('employee__first_name', 'employee__last_name', 'payroll_period_start')
     #Lets you search payrolls by employee name or payroll period.
 
-    ordering = ('payroll_period', 'employee')
+    ordering = ('payroll_period_start', 'employee')
     #Shows the most recent payrolls at the top by default.
 
     
 
 
 admin.site.register(Employee, EmployeeAdmin)
+admin.site.register(Attendance, AttendanceAdmin)
 admin.site.register(Payroll, PayrollAdmin)
