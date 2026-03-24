@@ -14,7 +14,6 @@ urlpatterns = [
     path('hr/employee/<int:employee_id>/payrolls/',views.employee_payrolls, name='employee_payrolls'),
     
     path('hr/payrolls/', views.hr_payroll_list, name='hr_payroll_list'),
-    path('hr/create-payroll/', views.create_payroll, name='create_payroll'),
     path('hr/create-employee/', views.create_employee, name='create_employee'),
     path('hr/mark-paid/<int:pk>', views.mark_paid, name='mark_paid'),
     
