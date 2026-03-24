@@ -32,7 +32,7 @@ def employee_payrolls(request, employee_id):
     if not request.user.is_superuser and request.user !=employee.user:
             return render(request, 'dashboard/not_authorized.html')
     
-    payrolls = Payroll.objects.filter(employee=employee).order_by('-payroll_period')
+    payrolls = Payroll.objects.filter(employee=employee).order_by('-payroll_period_start')
 
     return render(request, 'dashboard/employee_payrolls.html', {
         'employee' : employee,
@@ -66,11 +66,11 @@ def mark_paid(request, pk):
 @login_required
 def payroll_history(request, employee_id=None):
     if request.user.is_superuser:
-        payrolls = Payroll.objects.filter(employee_id=employee_id). order_by('-payroll_period')
+        payrolls = Payroll.objects.filter(employee_id=employee_id). order_by('-payroll_period_start')
     else:
         payrolls = Payroll.objects.filter(
             employee__user=request.user
-        ).order_by('payroll_period')
+        ).order_by('payroll_period_start')
 
     paginator = Paginator(payrolls, 10)
     page_number = request.GET.get('page')
@@ -93,15 +93,17 @@ def hr_payroll_list(request):
     current_year = now.year
 
     payrolls = Payroll.objects.select_related('employee__user').filter(
-        payroll_period__month=current_month,
-        payroll_period__year=current_year
+        payroll_period_start__month=current_month,
+        payroll_period_end__year=current_year
     )
 
     if search: 
         payrolls = payrolls.filter (
             Q(employee__user__username__icontains=search) |
-            Q(employee__position__icontains=search) |
-            Q(payroll_period__icontains=search)
+            Q(employee__position__icontains=search) & ~Q(employee__is_active=False) |
+            Q(employee__department__icontains=search) & ~Q(employee__is_active=False) |
+            Q(employee__pay_type__icontains=search) & ~Q(employee__is_active=False) |
+            Q(payroll_period_start__icontains=search)
         )
     
     payrolls = payrolls.order_by('-payroll_period')
