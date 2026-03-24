@@ -33,5 +33,7 @@ class EmployeeForm(forms.ModelForm):
         fields = [   
                 'employee_id',
                 'position',
-                'hourly_rate'
+                'department',
+                'pay_type,',
+                'hourly_rate',
          ]
