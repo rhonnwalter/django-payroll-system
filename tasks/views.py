@@ -25,6 +25,10 @@ def employee_list(request):
     employees = Employee.objects.all()
     return render (request, 'dashboard/employee_list.html', {'employees':employees})
 
+def attendance_list(request):
+    attendances = Attendance.objects.all()
+    return render (request, 'dashboard/attendace_list.html', {'attendances':attendances})
+
 @login_required
 def employee_payrolls(request, employee_id):
     employee = get_object_or_404(Employee, id=employee_id)
