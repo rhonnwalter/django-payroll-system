@@ -3,7 +3,7 @@ from .models import Attendance
 from .models import Employee
 
 class AttendanceForm(forms.ModelForm):
-    class meta:
+    class Meta:
        model = Attendance
        fields = ['employee', 'date','regular_hours', 'overtime_hours']
 class GeneratePayrollForm(forms.Form):
@@ -34,6 +34,7 @@ class EmployeeForm(forms.ModelForm):
                 'employee_id',
                 'position',
                 'department',
+                'employee_type'
                 'pay_type,',
                 'hourly_rate',
          ]
