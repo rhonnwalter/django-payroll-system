@@ -41,6 +41,10 @@ def attendace_detail(request,pk):
             employee__user = request.user
         )
     return render (request, 'dashboard/attendace_detail.html', {'attendances':attendance} )
+@login_required
+def my_attendance(request):
+    Attendance.objects.filter(employee__user = request.user).first()
+    return render (request, 'dashboard/my_attendance.html', {'attendances':Attendance})
 
 @login_required
 def employee_payrolls(request, employee_id):
