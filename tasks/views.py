@@ -24,10 +24,23 @@ def hr_required(view_func):
 def employee_list(request):
     employees = Employee.objects.all()
     return render (request, 'dashboard/employee_list.html', {'employees':employees})
-
+@login_required
+@user_passes_test(hr_required)
 def attendance_list(request):
     attendances = Attendance.objects.all()
     return render (request, 'dashboard/attendace_list.html', {'attendances':attendances})
+
+@login_required
+def attendace_detail(request,pk):
+    if request.user.is_staff or request.user.is_superuser:
+        attendance = get_object_or_404(Attendance, pk=pk)
+    else: 
+        attendance = get_object_or_404(
+            Attendance, 
+            pk=pk,
+            employee__user = request.user
+        )
+    return render (request, 'dashboard/attendace_detail.html', {'attendances':attendance} )
 
 @login_required
 def employee_payrolls(request, employee_id):
@@ -151,7 +164,7 @@ def create_attendance(request):
         form = AttendanceForm(request.POST)
         if form.is_valid():
            form.save()
-           return redirect('attendance_list.html')
+           return redirect('dashboard/attendance_list.html')
     else: form = AttendanceForm
 
     return render(request, 'dashboard/create_attendance.html', {'form': form})

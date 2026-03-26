@@ -7,9 +7,11 @@ urlpatterns = [
     path('dashboard/employee', views.employee_dashboard, name='employee_dashboard'),
     path('dashboard/hr', views.hr_dashboard, name='hr_dashboard'),
 
+    path('attendace-detail/<int:pk', views.attendace_detail, name='attendace_detail'),
     path('my-payroll/', views.my_payroll, name='my_payroll'),
     path('payrolls/<int:pk>/', views.payroll_detail, name='payroll_detail'),
     path('payroll-history/<int:employee_id>/', views.payroll_history, name='payroll_history'),
+    path('hr/attendace-list/', views.attendance_list, name='attendance_list'),
     path('hr/employees/', views.employee_list, name='employee_list'),
     path('hr/employee/<int:employee_id>/payrolls/',views.employee_payrolls, name='employee_payrolls'),
     
