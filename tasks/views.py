@@ -103,40 +103,46 @@ def payroll_history(request, employee_id=None):
 
 
 
-@staff_member_required
-@hr_required
+
 @login_required
 def hr_payroll_list(request):
-    search = request.GET.get('search', '')
-    
-    now = timezone.now()
-    current_month = now.month
-    current_year = now.year
 
-    payrolls = Payroll.objects.select_related('employee__user').filter(
-        payroll_period_start__month=current_month,
-        payroll_period_end__year=current_year
-    )
+    if request.user.is_staff or request.user.is_superuser: 
+        search = (request.GET.get('search') or '').strip().lower()
+        
+        now = timezone.now()
+        current_month = now.month
 
-    if search: 
-        payrolls = payrolls.filter (
-            Q(employee__user__username__icontains=search) |
-            Q(employee__position__icontains=search) & ~Q(employee__is_active=False) |
-            Q(employee__department__icontains=search) & ~Q(employee__is_active=False) |
-            Q(employee__pay_type__icontains=search) & ~Q(employee__is_active=False) |
-            Q(payroll_period_start__icontains=search)
+        payrolls = Payroll.objects.select_related('employee__user').filter(
+            payroll_period_start__month=current_month
         )
-    
-    payrolls = payrolls.order_by('-payroll_period')
 
-    paginator = Paginator(payrolls, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number) #this displays the per page payrolls with the applied paginator of 10 per pages
+        if search: 
+            search_condition = (
+                Q(employee__user__username__icontains=search) |
+                Q(employee__position__icontains=search)  |
+                Q(employee__department__icontains=search)  |
+                Q(employee__pay_type__icontains=search)  |
+                Q(payroll_period_start__icontains=search)
 
-    context = {
-        'page_obj' : page_obj,
-        'search_query' : search
-    }
+            )
+            is_active_condition = (Q(employee__is_active=True))
+
+            payrolls = payrolls.filter(search_condition, is_active_condition)
+        
+        payrolls = payrolls.order_by('-payroll_period')
+
+        paginator = Paginator(payrolls, 10)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number) #this displays the per page payrolls with the applied paginator of 10 per pages
+
+        context = {
+            'page_obj' : page_obj,
+            'search_query' : search
+        }
+
+    else:
+        return HttpResponseForbidden("You are not allowed here.")
     return render (request, 'dashboard/hr_payroll_list.html', context)
 
 from django.contrib.auth.models import User
