@@ -22,11 +22,37 @@ def hr_required(view_func):
 @login_required
 # Create your views here.
 def employee_list(request):
-    employees = Employee.objects.all()
-    return render (request, 'dashboard/employee_list.html', {'employees':employees})
+    if not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseForbidden("You are not allowed here.")
+    
+    search = (request.get.GET('search') or '').strip()
+
+    employees = Employee.objects.all().filter(is_active=True)
+
+    if search:
+        search = search_condition = (
+            Q(user__username__icontains=search) | 
+            Q(user__first_name__icontains=search) | 
+            Q(user__last_name__icontains=search) | 
+            Q(employee_id__icontains=search) |
+            Q(position__icontains=search) |
+            Q(department__icontains=search) |
+            Q(employee_type__icontains=search) |
+            Q(pay_type__icontains=search)
+        )
+        employees = employees.filter(search_condition)
+
+    employees = employees.order_by('-is_active', 'user__last_name')
+    paginator = Paginator(employees, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render (request, 'dashboard/employee_list.html', {'page_obj':page_obj})
+
 @login_required
-@user_passes_test(hr_required)
 def attendance_list(request):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseForbidden("You are not allowed here.")
+    
     attendances = Attendance.objects.all()
     return render (request, 'dashboard/attendace_list.html', {'attendances':attendances})
 
@@ -119,7 +145,7 @@ def hr_payroll_list(request):
     payrolls = Payroll.objects.select_related('employee__user').filter(
             employee__is_active=True,
             payroll_period_start__month=current_month,
-            payroll_period_end__year=current_year,
+            payroll_period_start__year=current_year,
  
         )
 
@@ -181,9 +207,6 @@ def create_attendance(request):
     else: form = AttendanceForm
 
     return render(request, 'dashboard/create_attendance.html', {'form': form})
-
-
-
 
 
 @login_required
