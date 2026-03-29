@@ -25,12 +25,12 @@ def employee_list(request):
     if not (request.user.is_staff or request.user.is_superuser):
         return HttpResponseForbidden("You are not allowed here.")
     
-    search = (request.get.GET('search') or '').strip()
+    search = (request.GET.get('search') or '').strip()
 
-    employees = Employee.objects.all().filter(is_active=True)
+    employees = Employee.objects.select_related('user').filter(is_active=True)
 
     if search:
-        search = search_condition = (
+        search_condition = (
             Q(user__username__icontains=search) | 
             Q(user__first_name__icontains=search) | 
             Q(user__last_name__icontains=search) | 
@@ -42,19 +42,51 @@ def employee_list(request):
         )
         employees = employees.filter(search_condition)
 
-    employees = employees.order_by('-is_active', 'user__last_name')
+    employees = employees.order_by('-is_active', 'user__last_name', 'user__last_name')
     paginator = Paginator(employees, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    return render (request, 'dashboard/employee_list.html', {'page_obj':page_obj})
+
+    context = {
+        'search_query' : search,
+        'page_obj': page_obj
+    
+    }
+
+    return render (request, 'dashboard/employee_list.html', {context})
 
 @login_required
 def attendance_list(request):
     if not (request.user.is_staff or request.user.is_superuser):
         return HttpResponseForbidden("You are not allowed here.")
     
-    attendances = Attendance.objects.all()
-    return render (request, 'dashboard/attendace_list.html', {'attendances':attendances})
+    attendances = Attendance.objects.select_related('employee__user').filter(employee__is_active=True)
+
+    search = (request.GET.get('search') or '').strip()
+
+    if search:
+        search_condition = (
+            Q(date__icontains=search) |
+            Q(employee__user__username__icontains=search) |
+            Q(employee__user__first_name__icontains=search) |
+            Q(employee__user__last_name__icontains=search) |
+            Q(employee__department__icontains=search) 
+
+        )
+        attendances = attendances.filter(search_condition)
+
+    attendances = attendances.order_by('-date')
+    paginator = Paginator(attendances, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'search_query' : search,
+        'page_obj': page_obj
+    
+    }
+
+    return render (request, 'dashboard/attendance_list.html', {context})
 
 @login_required
 def attendace_detail(request,pk):
