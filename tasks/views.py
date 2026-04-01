@@ -80,15 +80,14 @@ def attendance_list(request):
         except ValueError:
             date_to = None
 
-    if date_from or date_to:
-        attendances = attendances.filter(
-            date__gte=date_from if date_from else None,
-            date__lte=date_to if date_to else None
-        )
+    if date_from:
+        attendances = attendances.filter(date__gte=date_from)
+
+    if date_to:
+        attendances = attendances.filter(date__lte=date_to)
             
     if search:
         search_condition = (
-            Q(date__icontains=search) |
             Q(employee__user__username__icontains=search) |
             Q(employee__user__first_name__icontains=search) |
             Q(employee__user__last_name__icontains=search) |
@@ -97,7 +96,7 @@ def attendance_list(request):
         )
         attendances = attendances.filter(search_condition)
 
-    attendances = attendances.order_by('-date', 'employee__user__last_name')
+    attendances = attendances.order_by('-date', 'employee__user__last_name', 'employee__user__first_name')
     paginator = Paginator(attendances, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -110,7 +109,7 @@ def attendance_list(request):
     
     }
 
-    return render (request, 'dashboard/attendance_list.html', {context})
+    return render (request, 'dashboard/attendance_list.html', context)
 
 @login_required
 def attendace_detail(request,pk):
