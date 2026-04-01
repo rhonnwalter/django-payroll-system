@@ -9,7 +9,9 @@ from django.core.paginator import Paginator
 from .models import Employee, Payroll, Attendance
 from django.utils import timezone
 from .forms import EmployeeForm, AttendanceForm, GeneratePayrollForm
+from datetime import datetime
 from decimal import Decimal
+
 from .services import compute_total_pay, compute_total_deductions, compute_netpay
 
 def hr_required(view_func):
@@ -63,7 +65,27 @@ def attendance_list(request):
     attendances = Attendance.objects.select_related('employee__user').filter(employee__is_active=True)
 
     search = (request.GET.get('search') or '').strip()
+    date_from = request.GET.get('date_from')
+    date_to = request.GET.get('date_to')
 
+    if date_from:
+        try: 
+            date_from = datetime.strptime(date_from, "%Y-%m-%d").date()
+        except ValueError: 
+            date_from = None
+
+    if date_to:
+        try: 
+            date_to = datetime.strptime(date_to, "%Y-%m-%d").date()
+        except ValueError:
+            date_to = None
+
+    if date_from or date_to:
+        attendances = attendances.filter(
+            date__gte=date_from if date_from else None,
+            date__lte=date_to if date_to else None
+        )
+            
     if search:
         search_condition = (
             Q(date__icontains=search) |
@@ -75,14 +97,16 @@ def attendance_list(request):
         )
         attendances = attendances.filter(search_condition)
 
-    attendances = attendances.order_by('-date')
+    attendances = attendances.order_by('-date', 'employee__user__last_name')
     paginator = Paginator(attendances, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     context = {
         'search_query' : search,
-        'page_obj': page_obj
+        'page_obj': page_obj,
+        'date_from' : date_from,
+        'date_to' : date_to
     
     }
 
