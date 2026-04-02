@@ -12,7 +12,7 @@ from .forms import EmployeeForm, AttendanceForm, GeneratePayrollForm
 from datetime import datetime
 from decimal import Decimal
 
-from .services import compute_total_pay, compute_total_deductions, compute_netpay
+from .payroll_calculations import compute_total_pay, compute_netpay
 
 def hr_required(view_func):
     def wrapper(request, *args, **kwargs): # *args collects extra positional arguments. **kwargs collects extra keyword arguments.
@@ -21,6 +21,7 @@ def hr_required(view_func):
         return view_func(request, *args, **kwargs)
     return wrapper
 
+from .services import filter_employees
 @login_required
 # Create your views here.
 def employee_list(request):
@@ -28,23 +29,12 @@ def employee_list(request):
         return HttpResponseForbidden("You are not allowed here.")
     
     search = (request.GET.get('search') or '').strip()
-
     employees = Employee.objects.select_related('user').filter(is_active=True)
 
-    if search:
-        search_condition = (
-            Q(user__username__icontains=search) | 
-            Q(user__first_name__icontains=search) | 
-            Q(user__last_name__icontains=search) | 
-            Q(employee_id__icontains=search) |
-            Q(position__icontains=search) |
-            Q(department__icontains=search) |
-            Q(employee_type__icontains=search) |
-            Q(pay_type__icontains=search)
-        )
-        employees = employees.filter(search_condition)
+   
+    employees = filter_employees(employees, search=search)
 
-    employees = employees.order_by('-is_active', 'user__last_name', 'user__last_name')
+    employees = employees.order_by('-is_active', 'user__last_name', 'user__first_name')
     paginator = Paginator(employees, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -55,7 +45,7 @@ def employee_list(request):
     
     }
 
-    return render (request, 'dashboard/employee_list.html', {context})
+    return render (request, 'dashboard/employee_list.html', context)
 
 @login_required
 def attendance_list(request):
