@@ -47,44 +47,19 @@ def employee_list(request):
 
     return render (request, 'dashboard/employee_list.html', context)
 
+from .services import filter_attendances
 @login_required
 def attendance_list(request):
     if not (request.user.is_staff or request.user.is_superuser):
         return HttpResponseForbidden("You are not allowed here.")
     
-    attendances = Attendance.objects.select_related('employee__user').filter(employee__is_active=True)
-
     search = (request.GET.get('search') or '').strip()
     date_from = request.GET.get('date_from')
     date_to = request.GET.get('date_to')
+    
+    attendances = Attendance.objects.select_related('employee__user').filter(employee__is_active=True)
 
-    if date_from:
-        try: 
-            date_from = datetime.strptime(date_from, "%Y-%m-%d").date()
-        except ValueError: 
-            date_from = None
-
-    if date_to:
-        try: 
-            date_to = datetime.strptime(date_to, "%Y-%m-%d").date()
-        except ValueError:
-            date_to = None
-
-    if date_from:
-        attendances = attendances.filter(date__gte=date_from)
-
-    if date_to:
-        attendances = attendances.filter(date__lte=date_to)
-            
-    if search:
-        search_condition = (
-            Q(employee__user__username__icontains=search) |
-            Q(employee__user__first_name__icontains=search) |
-            Q(employee__user__last_name__icontains=search) |
-            Q(employee__department__icontains=search) 
-
-        )
-        attendances = attendances.filter(search_condition)
+    attendances = filter_attendances(attendances, search=search, date_from=date_from, date_to=date_to)
 
     attendances = attendances.order_by('-date', 'employee__user__last_name', 'employee__user__first_name')
     paginator = Paginator(attendances, 10)
@@ -253,7 +228,7 @@ def create_attendance(request):
 
     return render(request, 'dashboard/create_attendance.html', {'form': form})
 
-
+from . import services
 @login_required
 @user_passes_test(hr_required)
 def generate_payroll(request):
@@ -263,54 +238,7 @@ def generate_payroll(request):
             start_date = form.cleaned_data['start_date']
             end_date = form.cleaned_data['end_date']
 
-            employees = Employee.objects.filter(is_active=True)
-
-            for employee in employees:
-
-                if Payroll.objects.filter(
-                        employee=employee,
-                        payroll_period_start=start_date,
-                        payroll_period_end=end_date
-                    ).exists():
-                        continue
-                
-                if employee.pay_type == "hourly":
-                    attendance_records = Attendance.objects.filter(
-                    employee=employee,
-                    date__range=[start_date, end_date]
-                    )
-                    total_regular = Decimal(sum(a.regular_hours for a in attendance_records))
-                    total_overtime = Decimal(sum(a.overtime_hours for a in attendance_records))
-
-                    gross_pay = compute_total_pay(employee, total_regular, total_overtime)
-
-                elif employee.pay_type == "salary":
-                    total_regular = Decimal("0.00")
-                    total_overtime = Decimal("0.00")
-                    gross_pay = employee.salary_per_period
-                
-                else:
-                    continue
-                
-                net_pay, deductions = compute_netpay(gross_pay)
-
-                payroll = Payroll(
-                    employee=employee,
-                    payroll_period_start=start_date,
-                    payroll_period_end=end_date,
-                    total_regular_hours=total_regular,
-                    total_overtime_hours=total_overtime,
-                    gross_pay=gross_pay,
-                    net_pay=net_pay
-                )
-                payroll.sss = deductions["sss"]
-                payroll.philhealth = deductions["philhealth"]
-                payroll.pagibig = deductions["pagibig"]
-                payroll.tax = deductions['tax']
-
-                payroll.save()
-
-        
+            services.generate_payroll(start_date, end_date)
         return redirect("hr_dashboard")
     else: 
         form = GeneratePayrollForm()
