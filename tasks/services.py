@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q, Sum
 from datetime import datetime
 from decimal import Decimal
 from .models import Employee, Attendance, Payroll
@@ -47,17 +47,22 @@ def filter_attendances(queryset, search=None, date_from=None, date_to=None):
     return queryset
 
 def get_employee_work_data(employee, start_date, end_date):
-    if employee.pay_type == "hourly":
-        attendance_records = Attendance.objects.filter(
-        employee=employee,
-        date__range=[start_date, end_date]
-        )
-        total_regular = Decimal(sum(a.regular_hours for a in attendance_records))
-        total_overtime = Decimal(sum(a.overtime_hours for a in attendance_records))
+    if not employee.pay_type == "hourly":
+        return Decimal("0.00"), Decimal ("0.00")
+
+    attendance_records = Attendance.objects.filter(
+    employee=employee,
+    date__range=[start_date, end_date]
+    )
+
+    totals = attendance_records.aggregate(
+    total_regular=Sum('regular_hours'),
+    otal_overtime=Sum('overtime_hours')
+    )
+
+    total_regular=totals['total_regular'] or Decimal("0.00")
+    total_overtime=totals['total_overtime'] or Decimal("0.00")
     
-    else:
-        total_regular = 0
-        total_overtime = 0
     
     return total_regular, total_overtime
 
