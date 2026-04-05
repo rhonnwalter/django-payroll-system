@@ -12,7 +12,7 @@ from .forms import EmployeeForm, AttendanceForm, GeneratePayrollForm
 from datetime import datetime
 from decimal import Decimal
 
-from .payroll_calculations import compute_total_pay, compute_netpay
+
 
 def hr_required(view_func):
     def wrapper(request, *args, **kwargs): # *args collects extra positional arguments. **kwargs collects extra keyword arguments.
@@ -21,7 +21,7 @@ def hr_required(view_func):
         return view_func(request, *args, **kwargs)
     return wrapper
 
-from .services import filter_employees
+from services.employee_services import filter_employees
 @login_required
 # Create your views here.
 def employee_list(request):
@@ -47,7 +47,7 @@ def employee_list(request):
 
     return render (request, 'dashboard/employee_list.html', context)
 
-from .services import filter_attendances
+from services.attendance_service import filter_attendances
 @login_required
 def attendance_list(request):
     if not (request.user.is_staff or request.user.is_superuser):
@@ -228,7 +228,8 @@ def create_attendance(request):
 
     return render(request, 'dashboard/create_attendance.html', {'form': form})
 
-from . import services
+ 
+from services.payroll_services import generate_payroll
 @login_required
 @user_passes_test(hr_required)
 def generate_payroll(request):
@@ -238,7 +239,7 @@ def generate_payroll(request):
             start_date = form.cleaned_data['start_date']
             end_date = form.cleaned_data['end_date']
 
-            services.generate_payroll(start_date, end_date)
+            generate_payroll(start_date, end_date)
         return redirect("hr_dashboard")
     else: 
         form = GeneratePayrollForm()
