@@ -13,7 +13,6 @@ from datetime import datetime
 from decimal import Decimal
 
 
-
 def hr_required(view_func):
     def wrapper(request, *args, **kwargs): # *args collects extra positional arguments. **kwargs collects extra keyword arguments.
         if not request.user.is_superuser: 
@@ -105,10 +104,12 @@ def employee_payrolls(request, employee_id):
         'employee' : employee,
         'payrolls': payrolls
     })
+
 @login_required
 def my_payroll(request):
     payroll= Payroll.objects.filter(employee__user=request.user).first()
     return render (request, 'dashboard/my_payroll.html', {'payroll':payroll})
+
 @login_required
 def payroll_detail(request, pk):
     if request.user.is_staff or request.user.is_superuser:
@@ -147,9 +148,7 @@ def payroll_history(request, employee_id=None):
     }
     return render (request, 'dashboard/payroll_history.html', context)
 
-
-
-
+from services.payroll_services import filter_payrolls
 @login_required
 def hr_payroll_list(request):
 
@@ -170,15 +169,7 @@ def hr_payroll_list(request):
         )
 
 
-    if search: 
-        search_condition = (
-            Q(employee__user__username__icontains=search) |
-            Q(employee__position__icontains=search)  |
-            Q(employee__department__icontains=search)  |
-            Q(employee__pay_type__icontains=search)  
-        )
-
-        payrolls = payrolls.filter(search_condition)
+    payrolls = filter_payrolls(payrolls, search)
         
     payrolls = payrolls.order_by('-payroll_period_start')
 
@@ -229,7 +220,7 @@ def create_attendance(request):
     return render(request, 'dashboard/create_attendance.html', {'form': form})
 
  
-from services.payroll_services import generate_payroll
+from services.payroll_generate import generate_payroll
 @login_required
 @user_passes_test(hr_required)
 def generate_payroll(request):
