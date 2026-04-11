@@ -220,7 +220,7 @@ def create_attendance(request):
     return render(request, 'dashboard/create_attendance.html', {'form': form})
 
  
-from services.payroll_generate import generate_payroll
+from services.payroll_generate import generate_payroll as generate_payroll_service
 @login_required
 @user_passes_test(hr_required)
 def generate_payroll(request):
@@ -230,7 +230,7 @@ def generate_payroll(request):
             start_date = form.cleaned_data['start_date']
             end_date = form.cleaned_data['end_date']
 
-            generate_payroll(start_date, end_date)
+            generate_payroll_service(start_date, end_date)
         return redirect("hr_dashboard")
     else: 
         form = GeneratePayrollForm()
