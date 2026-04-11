@@ -134,7 +134,10 @@ def mark_paid(request, pk):
 @login_required
 def payroll_history(request, employee_id=None):
     if request.user.is_superuser:
-        payrolls = Payroll.objects.filter(employee_id=employee_id). order_by('-payroll_period_start')
+        if employee_id:
+             payrolls = Payroll.objects.filter(employee_id=employee_id).order_by('-payroll_period_start')
+        else:
+            payrolls = Payroll.objects.all().order_by('-payroll_period_start')
     else:
         payrolls = Payroll.objects.filter(
             employee__user=request.user
