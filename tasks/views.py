@@ -88,14 +88,14 @@ def attendace_detail(request,pk):
     return render (request, 'dashboard/attendace_detail.html', {'attendances':attendance} )
 @login_required
 def my_attendance(request):
-    Attendance.objects.filter(employee__user = request.user).first()
-    return render (request, 'dashboard/my_attendance.html', {'attendances':Attendance})
+    attendances = Attendance.objects.filter(employee__user = request.user).first()
+    return render (request, 'dashboard/my_attendance.html', {'attendances':attendances})
 
 @login_required
 def employee_payrolls(request, employee_id):
     employee = get_object_or_404(Employee, id=employee_id)
 
-    if not request.user.is_superuser and request.user !=employee.user:
+    if not (request.user.is_superuser or request.user.is_staff or request.user==employee.user):
             return render(request, 'dashboard/not_authorized.html')
     
     payrolls = Payroll.objects.filter(employee=employee).order_by('-payroll_period_start')
@@ -186,7 +186,7 @@ def hr_payroll_list(request):
     return render (request, 'dashboard/hr_payroll_list.html', context)
 
 from django.contrib.auth.models import User
-login_required
+@login_required
 @user_passes_test(hr_required)
 def create_employee(request):
     if request.method == "POST":
@@ -214,7 +214,7 @@ def create_attendance(request):
         form = AttendanceForm(request.POST)
         if form.is_valid():
            form.save()
-           return redirect('dashboard/attendance_list.html')
+           return redirect('attendance_list')
     else: form = AttendanceForm
 
     return render(request, 'dashboard/create_attendance.html', {'form': form})
