@@ -4,13 +4,9 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render
-from django.db.models import Q
-from django.core.paginator import Paginator
 from .models import Employee, Payroll, Attendance
 from django.utils import timezone
 from .forms import EmployeeForm, AttendanceForm, GeneratePayrollForm
-from datetime import datetime
-from decimal import Decimal
 
 
 def hr_required(view_func):
@@ -21,6 +17,7 @@ def hr_required(view_func):
     return wrapper
 
 from services.employee_services import filter_employees
+from services.query_services import paginate_queryset
 @login_required
 # Create your views here.
 def employee_list(request):
@@ -34,9 +31,7 @@ def employee_list(request):
     employees = filter_employees(employees, search=search)
 
     employees = employees.order_by('-is_active', 'user__last_name', 'user__first_name')
-    paginator = Paginator(employees, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = paginate_queryset(request, employees)
 
     context = {
         'search_query' : search,
@@ -47,6 +42,7 @@ def employee_list(request):
     return render (request, 'dashboard/employee_list.html', context)
 
 from services.attendance_service import filter_attendances
+from services.query_services import paginate_queryset
 @login_required
 def attendance_list(request):
     if not (request.user.is_staff or request.user.is_superuser):
@@ -61,9 +57,7 @@ def attendance_list(request):
     attendances = filter_attendances(attendances, search=search, date_from=date_from, date_to=date_to)
 
     attendances = attendances.order_by('-date', 'employee__user__last_name', 'employee__user__first_name')
-    paginator = Paginator(attendances, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = paginate_queryset(request, attendances)
 
     context = {
         'search_query' : search,
@@ -130,7 +124,7 @@ def mark_paid(request, pk):
     payroll.status = 'paid'
     payroll.save()
     return redirect ('hr_payroll_list')
-
+from services.query_services import paginate_queryset
 @login_required
 def payroll_history(request, employee_id=None):
     if request.user.is_superuser:
@@ -143,15 +137,14 @@ def payroll_history(request, employee_id=None):
             employee__user=request.user
         ).order_by('payroll_period_start')
 
-    paginator = Paginator(payrolls, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+   
+    page_obj = paginate_queryset (request, payrolls)
     context = {
         'page_obj' : page_obj
     }
     return render (request, 'dashboard/payroll_history.html', context)
-
 from services.payroll_services import filter_payrolls
+from services.query_services import  paginate_queryset
 @login_required
 def hr_payroll_list(request):
 
@@ -176,9 +169,7 @@ def hr_payroll_list(request):
         
     payrolls = payrolls.order_by('-payroll_period_start')
 
-    paginator = Paginator(payrolls, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number) #this displays the per page payrolls with the applied paginator of 10 per pages
+    page_obj = paginate_queryset(request, payrolls)
 
     context = {
                 'page_obj' : page_obj,
@@ -187,25 +178,16 @@ def hr_payroll_list(request):
   
        
     return render (request, 'dashboard/hr_payroll_list.html', context)
-
+from .services.employee_services import create_employee_service
 from django.contrib.auth.models import User
 @login_required
 @user_passes_test(hr_required)
 def create_employee(request):
     if request.method == "POST":
-        form = EmployeeForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-
-            user = User.objects.create_user(
-                username=username,
-                password=password
-            )
-            employee = form.save(commit=False)
-            employee.user = user
-            employee.save()
-            return redirect ('employee_list')
+            form = EmployeeForm(request.POST)
+            if form.is_valid():
+                create_employee_service(form)
+                return redirect ('employee_list')
     else:
         form = EmployeeForm()
     return render(request, 'dashboard/create_employee.html', {'form': form} )  
