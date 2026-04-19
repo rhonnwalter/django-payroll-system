@@ -1,16 +1,13 @@
-from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseForbidden
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.shortcuts import redirect
-from django.contrib.admin.views.decorators import staff_member_required
-from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect,  render, get_object_or_404
 from django.db.models import Sum
 from .models import Employee, Payroll, Attendance
 from django.utils import timezone
 from .forms import EmployeeForm, AttendanceForm, GeneratePayrollForm
 from services.employee_services import filter_employees, create_employee_service
 from services.attendance_service import filter_attendances
-from services.payroll_services import filter_payrolls
+from services.payroll_services import filter_payrolls, mark_payroll_paid
 from services.payroll_generate import generate_payroll as generate_payroll_service
 from services.query_services import paginate_queryset
 from services.auth_services import hr_required
@@ -114,8 +111,7 @@ def payroll_detail(request, pk):
 @hr_required
 def mark_paid(request, pk):
     payroll = get_object_or_404(Payroll, pk=pk)
-    payroll.status = 'paid'
-    payroll.save()
+    mark_payroll_paid(payroll, user=request.user)
     return redirect ('hr_payroll_list')
 
 @login_required
