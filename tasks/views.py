@@ -5,6 +5,7 @@ from django.db.models import Sum
 from .models import Employee, Payroll, Attendance
 from django.utils import timezone
 from .forms import EmployeeForm, AttendanceForm, GeneratePayrollForm
+from services.hr_dashboard import hr_dashboard_stats
 from services.employee_services import filter_employees, create_employee_service
 from services.attendance_service import filter_attendances
 from services.payroll_services import filter_payrolls, mark_payroll_paid
@@ -63,14 +64,14 @@ def attendance_list(request):
 @login_required
 def attendace_detail(request,pk):
     if request.user.is_staff or request.user.is_superuser:
-        attendance = get_object_or_404(Attendance, pk=pk)
+        attendances = get_object_or_404(Attendance, pk=pk)
     else: 
-        attendance = get_object_or_404(
+        attendances = get_object_or_404(
             Attendance, 
             pk=pk,
             employee__user = request.user
         )
-    return render (request, 'dashboard/attendace_detail.html', {'attendances':attendance} )
+    return render (request, 'dashboard/attendance_detail.html', {'attendances':attendances} )
 
 @login_required
 def my_attendance(request):
@@ -225,18 +226,8 @@ def dashboard_redirect(request):
 @login_required
 @hr_required
 def hr_dashboard(request):
-    payrolls = Payroll.objects.annotate(total_pay_expr=Payroll.total_pay_expression())
-    total_employees = Employee.objects.count()
-    total_payrolls = payrolls.count()
-    total_salary = payrolls.aggregate(Sum('total_pay_expr'))['total_pay_expr__sum'] or 0 #['total_pay_expr__sum' grab the actual number from the dictionary.
-    context = {
-        'payrolls' : payrolls,
-        'total_employees' : total_employees,
-        'total_payrolls' : total_payrolls,
-        'total_salary' : total_salary
-
-    }
-    return render(request, 'dashboard/hr_dashboard.html', context)
+    stats = hr_dashboard_stats(request)
+    return render(request, 'dashboard/hr_dashboard.html', stats)
 
 @login_required
 def employee_dashboard(request):
