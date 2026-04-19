@@ -4,9 +4,15 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render
+from django.db.models import Sum
 from .models import Employee, Payroll, Attendance
 from django.utils import timezone
 from .forms import EmployeeForm, AttendanceForm, GeneratePayrollForm
+from services.employee_services import filter_employees, create_employee_service
+from services.attendance_service import filter_attendances
+from services.payroll_services import filter_payrolls
+from services.payroll_generate import generate_payroll as generate_payroll_service
+from services.query_services import paginate_queryset
 
 
 def hr_required(view_func):
@@ -16,8 +22,6 @@ def hr_required(view_func):
         return view_func(request, *args, **kwargs)
     return wrapper
 
-from services.employee_services import filter_employees
-from services.query_services import paginate_queryset
 @login_required
 # Create your views here.
 def employee_list(request):
@@ -41,8 +45,6 @@ def employee_list(request):
 
     return render (request, 'dashboard/employee_list.html', context)
 
-from services.attendance_service import filter_attendances
-from services.query_services import paginate_queryset
 @login_required
 def attendance_list(request):
     if not (request.user.is_staff or request.user.is_superuser):
@@ -80,6 +82,7 @@ def attendace_detail(request,pk):
             employee__user = request.user
         )
     return render (request, 'dashboard/attendace_detail.html', {'attendances':attendance} )
+
 @login_required
 def my_attendance(request):
     attendances = Attendance.objects.filter(employee__user = request.user).first()
@@ -124,7 +127,7 @@ def mark_paid(request, pk):
     payroll.status = 'paid'
     payroll.save()
     return redirect ('hr_payroll_list')
-from services.query_services import paginate_queryset
+
 @login_required
 def payroll_history(request, employee_id=None):
     if request.user.is_superuser:
@@ -137,14 +140,13 @@ def payroll_history(request, employee_id=None):
             employee__user=request.user
         ).order_by('payroll_period_start')
 
-   
     page_obj = paginate_queryset (request, payrolls)
     context = {
         'page_obj' : page_obj
     }
     return render (request, 'dashboard/payroll_history.html', context)
-from services.payroll_services import filter_payrolls
-from services.query_services import  paginate_queryset
+
+
 @login_required
 def hr_payroll_list(request):
 
@@ -161,9 +163,7 @@ def hr_payroll_list(request):
             employee__is_active=True,
             payroll_period_start__month=current_month,
             payroll_period_start__year=current_year,
- 
-        )
-
+    )
 
     payrolls = filter_payrolls(payrolls, search)
         
@@ -175,11 +175,9 @@ def hr_payroll_list(request):
                 'page_obj' : page_obj,
                 'search_query' : search
     }
-  
-       
+   
     return render (request, 'dashboard/hr_payroll_list.html', context)
-from .services.employee_services import create_employee_service
-from django.contrib.auth.models import User
+
 @login_required
 @user_passes_test(hr_required)
 def create_employee(request):
@@ -205,7 +203,6 @@ def create_attendance(request):
     return render(request, 'dashboard/create_attendance.html', {'form': form})
 
  
-from services.payroll_generate import generate_payroll as generate_payroll_service
 @login_required
 @user_passes_test(hr_required)
 def generate_payroll(request):
@@ -236,7 +233,7 @@ def dashboard_redirect(request):
     else:  
         return redirect('employee_dashboard')
    
-from django.db.models import Sum
+
 @login_required
 def hr_dashboard(request):
     if not request.user.is_superuser:
