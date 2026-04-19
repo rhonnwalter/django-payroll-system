@@ -13,17 +13,10 @@ from services.attendance_service import filter_attendances
 from services.payroll_services import filter_payrolls
 from services.payroll_generate import generate_payroll as generate_payroll_service
 from services.query_services import paginate_queryset
-
-
-def hr_required(view_func):
-    def wrapper(request, *args, **kwargs): # *args collects extra positional arguments. **kwargs collects extra keyword arguments.
-        if not request.user.is_superuser: 
-            return HttpResponseForbidden("You are not allowed here.")
-        return view_func(request, *args, **kwargs)
-    return wrapper
+from services.auth_services import hr_required
 
 @login_required
-# Create your views here.
+@hr_required
 def employee_list(request):
     if not (request.user.is_staff or request.user.is_superuser):
         return HttpResponseForbidden("You are not allowed here.")
@@ -46,10 +39,9 @@ def employee_list(request):
     return render (request, 'dashboard/employee_list.html', context)
 
 @login_required
+@hr_required
 def attendance_list(request):
-    if not (request.user.is_staff or request.user.is_superuser):
-        return HttpResponseForbidden("You are not allowed here.")
-    
+   
     search = (request.GET.get('search') or '').strip()
     date_from = request.GET.get('date_from')
     date_to = request.GET.get('date_to')
@@ -89,12 +81,9 @@ def my_attendance(request):
     return render (request, 'dashboard/my_attendance.html', {'attendances':attendances})
 
 @login_required
+@hr_required
 def employee_payrolls(request, employee_id):
     employee = get_object_or_404(Employee, id=employee_id)
-
-    if not (request.user.is_superuser or request.user.is_staff or request.user==employee.user):
-            return render(request, 'dashboard/not_authorized.html')
-    
     payrolls = Payroll.objects.filter(employee=employee).order_by('-payroll_period_start')
 
     return render(request, 'dashboard/employee_payrolls.html', {
@@ -121,7 +110,8 @@ def payroll_detail(request, pk):
         ) 
     return render (request, 'dashboard/payroll_detail.html', {'payroll': payroll})
 
-@staff_member_required
+@login_required
+@hr_required
 def mark_paid(request, pk):
     payroll = get_object_or_404(Payroll, pk=pk)
     payroll.status = 'paid'
@@ -129,6 +119,7 @@ def mark_paid(request, pk):
     return redirect ('hr_payroll_list')
 
 @login_required
+@hr_required
 def payroll_history(request, employee_id=None):
     if request.user.is_superuser:
         if employee_id:
@@ -148,6 +139,7 @@ def payroll_history(request, employee_id=None):
 
 
 @login_required
+@hr_required
 def hr_payroll_list(request):
 
     if not (request.user.is_staff or request.user.is_superuser):
@@ -179,7 +171,7 @@ def hr_payroll_list(request):
     return render (request, 'dashboard/hr_payroll_list.html', context)
 
 @login_required
-@user_passes_test(hr_required)
+@hr_required
 def create_employee(request):
     if request.method == "POST":
             form = EmployeeForm(request.POST)
@@ -191,7 +183,7 @@ def create_employee(request):
     return render(request, 'dashboard/create_employee.html', {'form': form} )  
        
 @login_required
-@user_passes_test(hr_required)
+@hr_required
 def create_attendance(request):
     if request.method == "POST":
         form = AttendanceForm(request.POST)
@@ -204,7 +196,7 @@ def create_attendance(request):
 
  
 @login_required
-@user_passes_test(hr_required)
+@hr_required
 def generate_payroll(request):
     if request.method == "POST":
         form = GeneratePayrollForm(request.POST)
@@ -235,9 +227,8 @@ def dashboard_redirect(request):
    
 
 @login_required
+@hr_required
 def hr_dashboard(request):
-    if not request.user.is_superuser:
-        return redirect('employee_dashboard')
     payrolls = Payroll.objects.annotate(total_pay_expr=Payroll.total_pay_expression())
     total_employees = Employee.objects.count()
     total_payrolls = payrolls.count()
