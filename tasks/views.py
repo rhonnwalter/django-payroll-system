@@ -5,7 +5,7 @@ from django.utils import timezone
 from .forms import EmployeeForm, AttendanceForm, GeneratePayrollForm
 from services.hr_dashboard import hr_dashboard_stats
 from services.employee_services import filter_employees, create_employee_service
-from services.attendance_service import filter_attendances
+from services.attendance_service import filter_attendances, get_attendance_detail
 from services.payroll_services import filter_payrolls, mark_payroll_paid, get_payroll_detail
 from services.payroll_generate import generate_payroll as generate_payroll_service
 from services.query_services import paginate_queryset
@@ -56,14 +56,7 @@ def attendance_list(request):
 
 @login_required
 def attendance_detail(request, pk):
-    if request.user.is_staff or request.user.is_superuser:
-        attendance = get_object_or_404(Attendance, pk=pk)
-    else: 
-        attendance = get_object_or_404(
-            Attendance, 
-            pk=pk,
-            employee__user = request.user
-        )
+    attendance = get_attendance_detail(request.user, pk)
     return render (request, 'dashboard/attendance_detail.html', {'attendance':attendance} )
 
 @login_required
