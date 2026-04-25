@@ -1,27 +1,21 @@
-from django.http import HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect,  render, get_object_or_404
-from django.db.models import Sum
 from .models import Employee, Payroll, Attendance
 from django.utils import timezone
 from .forms import EmployeeForm, AttendanceForm, GeneratePayrollForm
 from services.hr_dashboard import hr_dashboard_stats
 from services.employee_services import filter_employees, create_employee_service
 from services.attendance_service import filter_attendances
-from services.payroll_services import filter_payrolls, mark_payroll_paid
+from services.payroll_services import filter_payrolls, mark_payroll_paid, get_payroll_detail
 from services.payroll_generate import generate_payroll as generate_payroll_service
 from services.query_services import paginate_queryset
-from services.auth_services import hr_required
+from services.permission_services import hr_required
 
 @login_required
 @hr_required
 def employee_list(request):
-    if not (request.user.is_staff or request.user.is_superuser):
-        return HttpResponseForbidden("You are not allowed here.")
-    
     search = (request.GET.get('search') or '').strip()
     employees = Employee.objects.select_related('user').filter(is_active=True)
-
    
     employees = filter_employees(employees, search=search)
 
@@ -39,7 +33,6 @@ def employee_list(request):
 @login_required
 @hr_required
 def attendance_list(request):
-   
     search = (request.GET.get('search') or '').strip()
     date_from = request.GET.get('date_from')
     date_to = request.GET.get('date_to')
@@ -62,26 +55,26 @@ def attendance_list(request):
     return render (request, 'dashboard/attendance_list.html', context)
 
 @login_required
-def attendace_detail(request,pk):
+def attendance_detail(request, pk):
     if request.user.is_staff or request.user.is_superuser:
-        attendances = get_object_or_404(Attendance, pk=pk)
+        attendance = get_object_or_404(Attendance, pk=pk)
     else: 
-        attendances = get_object_or_404(
+        attendance = get_object_or_404(
             Attendance, 
             pk=pk,
             employee__user = request.user
         )
-    return render (request, 'dashboard/attendance_detail.html', {'attendances':attendances} )
+    return render (request, 'dashboard/attendance_detail.html', {'attendance':attendance} )
 
 @login_required
 def my_attendance(request):
-    attendances = Attendance.objects.filter(employee__user = request.user).first()
-    return render (request, 'dashboard/my_attendance.html', {'attendances':attendances})
+    attendance = Attendance.objects.filter(employee__user = request.user)
+    return render (request, 'dashboard/my_attendance.html', {'attendance':attendance})
 
 @login_required
 @hr_required
 def employee_payrolls(request, employee_id):
-    employee = get_object_or_404(Employee, id=employee_id)
+    employee = get_object_or_404(Employee, id=employee_id).order_by('-date').first()
     payrolls = Payroll.objects.filter(employee=employee).order_by('-payroll_period_start')
 
     return render(request, 'dashboard/employee_payrolls.html', {
@@ -91,21 +84,13 @@ def employee_payrolls(request, employee_id):
 
 @login_required
 def my_payroll(request):
-    payroll= Payroll.objects.filter(employee__user=request.user).first()
+    payroll= Payroll.objects.filter(employee__user=request.user).order_by('-payroll_period_start').first()
+    
     return render (request, 'dashboard/my_payroll.html', {'payroll':payroll})
 
 @login_required
 def payroll_detail(request, pk):
-    if request.user.is_staff or request.user.is_superuser:
-        payroll = get_object_or_404 (Payroll, pk=pk)
-    else:
-         payroll = get_object_or_404(
-    
-        Payroll, #the model querying to
-        pk=pk,  #looks into the payroll id that matches with the url pk
-        employee__user=request.user #looks into the field employee and the user field in which is linked to the employee. 
-        #and checks if those fields, matched with the user logged in.
-        ) 
+    payroll = get_payroll_detail(request.user, pk)
     return render (request, 'dashboard/payroll_detail.html', {'payroll': payroll})
 
 @login_required
@@ -116,7 +101,6 @@ def mark_paid(request, pk):
     return redirect ('hr_payroll_list')
 
 @login_required
-@hr_required
 def payroll_history(request, employee_id=None):
     if request.user.is_superuser:
         if employee_id:
@@ -138,10 +122,6 @@ def payroll_history(request, employee_id=None):
 @login_required
 @hr_required
 def hr_payroll_list(request):
-
-    if not (request.user.is_staff or request.user.is_superuser):
-        return HttpResponseForbidden("You are not allowed here.") 
-    
     search = (request.GET.get('search') or '').strip()
         
     now = timezone.now()
@@ -187,7 +167,7 @@ def create_attendance(request):
         if form.is_valid():
            form.save()
            return redirect('attendance_list')
-    else: form = AttendanceForm
+    else: form = AttendanceForm()
 
     return render(request, 'dashboard/create_attendance.html', {'form': form})
 
@@ -213,10 +193,7 @@ def generate_payroll(request):
 def dashboard_redirect(request):
     user = request.user
 
-    if user.is_superuser:
-        return redirect('hr_dashboard')
-    
-    elif user.is_staff:
+    if user.is_superuser or user.is_staff:
         return redirect('hr_dashboard')
     
     else:  
