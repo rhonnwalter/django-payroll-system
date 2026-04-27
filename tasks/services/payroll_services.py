@@ -27,3 +27,17 @@ def get_payroll_detail (user, pk):
         queryset = queryset.filter(employee__user=user)
     
     return get_object_or_404(queryset, pk=pk)
+
+def get_payroll_history (user, employee_id):
+    queryset = Payroll.objects.select_related('employee__user')
+    if (is_hr(user)):
+        if employee_id:
+            queryset = queryset.filter(employee_id=employee_id).order_by('-payroll_period_start')
+        else:
+            queryset = queryset.all().order_by('-payroll_period_start')
+    else:
+        queryset = queryset.objects.filter(
+            employee__user=user
+        ).order_by('payroll_period_start')
+
+    return queryset

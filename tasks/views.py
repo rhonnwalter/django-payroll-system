@@ -6,7 +6,7 @@ from .forms import EmployeeForm, AttendanceForm, GeneratePayrollForm
 from services.hr_dashboard import hr_dashboard_stats
 from services.employee_services import filter_employees, create_employee_service
 from services.attendance_service import filter_attendances, get_attendance_detail
-from services.payroll_services import filter_payrolls, mark_payroll_paid, get_payroll_detail
+from services.payroll_services import filter_payrolls, mark_payroll_paid, get_payroll_detail, get_payroll_history
 from services.payroll_generate import generate_payroll as generate_payroll_service
 from services.query_services import paginate_queryset
 from services.permission_services import hr_required
@@ -95,15 +95,8 @@ def mark_paid(request, pk):
 
 @login_required
 def payroll_history(request, employee_id=None):
-    if request.user.is_superuser:
-        if employee_id:
-             payrolls = Payroll.objects.filter(employee_id=employee_id).order_by('-payroll_period_start')
-        else:
-            payrolls = Payroll.objects.all().order_by('-payroll_period_start')
-    else:
-        payrolls = Payroll.objects.filter(
-            employee__user=request.user
-        ).order_by('payroll_period_start')
+    
+    payrolls = get_payroll_history(request.user, employee_id)
 
     page_obj = paginate_queryset (request, payrolls)
     context = {
