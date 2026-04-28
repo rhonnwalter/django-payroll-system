@@ -5,7 +5,7 @@ from django.utils import timezone
 from .forms import EmployeeForm, AttendanceForm, GeneratePayrollForm
 from services.hr_dashboard import hr_dashboard_stats
 from services.employee_services import filter_employees, create_employee_service
-from services.attendance_service import filter_attendances, get_attendance_detail
+from services.attendance_service import filter_attendances, get_attendance_detail, create_attendance_service
 from services.payroll_services import filter_payrolls, mark_payroll_paid, get_payroll_detail, get_payroll_history
 from services.payroll_generate import generate_payroll as generate_payroll_service
 from services.query_services import paginate_queryset
@@ -38,7 +38,6 @@ def attendance_list(request):
     date_to = request.GET.get('date_to')
     
     attendances = Attendance.objects.select_related('employee__user').filter(employee__is_active=True)
-
     attendances = filter_attendances(attendances, search=search, date_from=date_from, date_to=date_to)
 
     attendances = attendances.order_by('-date', 'employee__user__last_name', 'employee__user__first_name')
@@ -95,7 +94,6 @@ def mark_paid(request, pk):
 
 @login_required
 def payroll_history(request, employee_id=None):
-    
     payrolls = get_payroll_history(request.user, employee_id)
 
     page_obj = paginate_queryset (request, payrolls)
@@ -151,7 +149,7 @@ def create_attendance(request):
     if request.method == "POST":
         form = AttendanceForm(request.POST)
         if form.is_valid():
-           form.save()
+           create_attendance_service(form)
            return redirect('attendance_list')
     else: form = AttendanceForm()
 

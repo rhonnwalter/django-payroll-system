@@ -37,3 +37,9 @@ def get_attendance_detail (user, pk):
         queryset = queryset.filter(employee__user=user)
     
     return get_object_or_404(queryset, pk=pk)
+
+def create_attendance_service(form):
+    attendance  = form.save(commit=False)
+
+    attendance.save()
+    return attendance
