@@ -2,6 +2,8 @@ from django.db.models import Q
 from models import Payroll
 from django.shortcuts import get_object_or_404
 from .permission_services import is_hr
+from django.utils import timezone
+
 def filter_payrolls(queryset, search=None):
     if search: 
         search_condition = (
@@ -39,5 +41,19 @@ def get_payroll_history (user, employee_id):
         queryset = queryset.objects.filter(
             employee__user=user
         ).order_by('payroll_period_start')
+
+    return queryset
+
+def get_current_month_payrolls():
+
+    now = timezone.now()
+    current_month = now.month
+    current_year = now.year
+
+    queryset = Payroll.objects.select_related('employee__user').filter(
+            employee__is_active=True,
+            payroll_period_start__month=current_month,
+            payroll_period_start__year=current_year,
+    )
 
     return queryset

@@ -6,7 +6,7 @@ from .forms import EmployeeForm, AttendanceForm, GeneratePayrollForm
 from services.hr_dashboard import hr_dashboard_stats
 from services.employee_services import filter_employees, create_employee_service
 from services.attendance_service import filter_attendances, get_attendance_detail, create_attendance_service
-from services.payroll_services import filter_payrolls, mark_payroll_paid, get_payroll_detail, get_payroll_history
+from services.payroll_services import filter_payrolls, mark_payroll_paid, get_payroll_detail, get_payroll_history,  get_current_month_payrolls
 from services.payroll_generate import generate_payroll as generate_payroll_service
 from services.query_services import paginate_queryset
 from services.permission_services import hr_required
@@ -60,14 +60,14 @@ def attendance_detail(request, pk):
 
 @login_required
 def my_attendance(request):
-    attendance = Attendance.objects.filter(employee__user = request.user)
-    return render (request, 'dashboard/my_attendance.html', {'attendance':attendance})
+    attendances = Attendance.objects.select_related('employee__user').filter(employee__user = request.user)
+    return render (request, 'dashboard/my_attendance.html', {'attendances':attendances})
 
 @login_required
 @hr_required
 def employee_payrolls(request, employee_id):
-    employee = get_object_or_404(Employee, id=employee_id).order_by('-date').first()
-    payrolls = Payroll.objects.filter(employee=employee).order_by('-payroll_period_start')
+    employee = get_object_or_404(Employee, id=employee_id)
+    payrolls = Payroll.objects.select_related('employee__user').filter(employee=employee).order_by('-payroll_period_start')
 
     return render(request, 'dashboard/employee_payrolls.html', {
         'employee' : employee,
@@ -76,7 +76,7 @@ def employee_payrolls(request, employee_id):
 
 @login_required
 def my_payroll(request):
-    payroll= Payroll.objects.filter(employee__user=request.user).order_by('-payroll_period_start').first()
+    payroll= Payroll.objects.select_related('employee__user').filter(employee__user=request.user).order_by('-payroll_period_start').first()
     
     return render (request, 'dashboard/my_payroll.html', {'payroll':payroll})
 
@@ -108,18 +108,8 @@ def payroll_history(request, employee_id=None):
 def hr_payroll_list(request):
     search = (request.GET.get('search') or '').strip()
         
-    now = timezone.now()
-    current_month = now.month
-    current_year = now.year
-        
-    payrolls = Payroll.objects.select_related('employee__user').filter(
-            employee__is_active=True,
-            payroll_period_start__month=current_month,
-            payroll_period_start__year=current_year,
-    )
-
+    payrolls = get_current_month_payrolls()
     payrolls = filter_payrolls(payrolls, search)
-        
     payrolls = payrolls.order_by('-payroll_period_start')
 
     page_obj = paginate_queryset(request, payrolls)
@@ -177,7 +167,7 @@ def generate_payroll(request):
 def dashboard_redirect(request):
     user = request.user
 
-    if user.is_superuser or user.is_staff:
+    if user.is_staff:
         return redirect('hr_dashboard')
     
     else:  
@@ -192,7 +182,7 @@ def hr_dashboard(request):
 
 @login_required
 def employee_dashboard(request):
-    payrolls = Payroll.objects.filter(employee__user=request.user).order_by('-created_at')
+    payrolls = Payroll.objects.select_related('employee__user').filter(employee__user=request.user).order_by('-created_at')
     latest_payroll = payrolls.first()
     total_payrolls = payrolls.count()
 
