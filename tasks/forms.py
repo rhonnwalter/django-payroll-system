@@ -1,6 +1,7 @@
 from django import forms
 from .models import Attendance
 from .models import Employee
+from django.contrib.auth.models import User
 
 class AttendanceForm(forms.ModelForm):
     class Meta:
@@ -28,13 +29,30 @@ class EmployeeForm(forms.ModelForm):
     username = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput)
     
+   
     class Meta:  
         model = Employee
         fields = [   
                 'employee_id',
                 'position',
                 'department',
-                'employee_type'
-                'pay_type,',
+                'employee_type',
+                'pay_type',
                 'hourly_rate',
+                'salary_rate',
+                'date_hired'
          ]
+    
+    def save(self, commit=True):
+        user = User.objects.create_user(
+            username=self.cleaned_data['username'],
+            password=self.cleaned_data['password']
+        )
+
+        employee = super().save(commit=False)
+        employee.user = user
+
+        if commit:
+            employee.save()
+
+        return employee 
