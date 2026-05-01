@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize', #responsible for int comma
     'tasks',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
