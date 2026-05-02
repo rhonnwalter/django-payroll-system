@@ -39,20 +39,8 @@ class EmployeeForm(forms.ModelForm):
                 'employee_type',
                 'pay_type',
                 'hourly_rate',
-                'salary_rate',
-                'date_hired'
+                'salary_per_period',
+               
          ]
     
-    def save(self, commit=True):
-        user = User.objects.create_user(
-            username=self.cleaned_data['username'],
-            password=self.cleaned_data['password']
-        )
-
-        employee = super().save(commit=False)
-        employee.user = user
-
-        if commit:
-            employee.save()
-
-        return employee 
+    
