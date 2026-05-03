@@ -1,4 +1,5 @@
 from django.db.models import Q
+from django.db import transaction
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from forms import EmployeeForm
@@ -18,12 +19,17 @@ def filter_employees(queryset, search=None):
     return queryset
 
 
-
+@transaction.atomic
 def create_employee_service(form):
+    if not form.is_valid():
+        raise ValueError("Invalid form data")
     
     username = form.cleaned_data['username']
     password = form.cleaned_data['password']
 
+    if User.objects.filter(username=username).exists():
+        raise ValueError("Username already exists")
+    
     user = User.objects.create_user(
                 username=username,
                 password=password
@@ -33,3 +39,7 @@ def create_employee_service(form):
     employee.save()
     
     return employee
+
+    
+    
+   
