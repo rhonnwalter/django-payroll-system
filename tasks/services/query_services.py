@@ -1,5 +1,5 @@
 from django.db.models import Q
-from models import Payroll
+from tasks.models import Payroll
 from django.core.paginator import Paginator
 
 def filter_payrolls(queryset, search=None):

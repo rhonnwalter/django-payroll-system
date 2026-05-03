@@ -1,5 +1,5 @@
 from django.db.models import Q
-from models import Payroll
+from tasks.models import Payroll
 from django.shortcuts import get_object_or_404
 from .permission_services import is_hr
 from django.utils import timezone

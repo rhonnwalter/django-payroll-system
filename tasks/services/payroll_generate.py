@@ -1,7 +1,7 @@
 from django.db.models import Q, Sum
 from datetime import datetime
 from decimal import Decimal
-from models import Employee, Attendance, Payroll
+from tasks.models import Employee, Attendance, Payroll
 from .payroll_calculations import compute_total_pay, compute_netpay
 
 def get_employee_work_data(employee, start_date, end_date):

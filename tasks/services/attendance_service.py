@@ -1,6 +1,6 @@
 from datetime import datetime
 from django.db.models import Q
-from models import Attendance
+from tasks.models import Attendance
 from django.shortcuts import get_object_or_404
 from .permission_services import is_hr
 def filter_attendances(queryset, search=None, date_from=None, date_to=None):

@@ -2,7 +2,7 @@ from django.db.models import Q
 from django.db import transaction
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
-from forms import EmployeeForm
+
 def filter_employees(queryset, search=None):
     if search:
         search_condition = (

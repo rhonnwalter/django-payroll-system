@@ -1,4 +1,4 @@
-from models import Payroll, Employee
+from tasks.models import Payroll, Employee
 from django.db.models import Sum
 
 def hr_dashboard_stats():
