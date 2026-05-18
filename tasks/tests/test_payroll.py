@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
-from tasks.models import Employee, Attendance
+from tasks.models import Employee, Attendance, Payroll
 from django.urls import reverse
 from datetime import date 
 
@@ -51,7 +51,24 @@ class PayrollTests(TestCase):
 
     def test_generate_payroll(self):
         url =  reverse('generate_payroll')
+        start_date = date(2026, 5, 15)
+        end_date= date(2026, 5, 30)
         data = {
-            'start_date':'2026-05-15',
-            'end_date': '2026-05-30'
+            'employee' : self.employee.id,
+            'start_date':start_date,
+            'end_date': end_date
         }
+
+        response = self.client.post(url,data)
+
+        self.assertEqual(response.status_code, 302)
+
+        self.assertTrue(
+            Payroll.objects.filter(employee=self.employee, payroll_period_start=start_date, payroll_period_end=end_date).exists()
+        )
+
+        payroll=Payroll.objects.get(
+        employee=self.employee, payroll_period_start=start_date, payroll_period_end=end_date
+        )
+        self.assertEqual(payroll.payroll_period_start, start_date)
+        self.assertEqual(payroll.payroll_period_end, end_date)
