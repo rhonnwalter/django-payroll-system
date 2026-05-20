@@ -21,7 +21,7 @@ class EmployeeTests(TestCase):
                 'employee_type': 'FULLTIME',
                 'pay_type': 'salary',
                 'hourly_rate': 0,
-                'salary_rate': 50000,
+                'salary_per_period': 50000,
         }
 
         response = self.client.post(url, data)

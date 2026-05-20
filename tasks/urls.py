@@ -8,7 +8,7 @@ urlpatterns = [
     path('dashboard/hr', views.hr_dashboard, name='hr_dashboard'),
 
     path('my-attendace/', views.my_attendance, name='my_attendace'),
-    path('attendace-detail/<int:pk', views.attendace_detail, name='attendace_detail'),
+    path('attendance-detail/<int:pk>', views.attendance_detail, name='attendace_detail'),
    
 
     path('my-payroll/', views.my_payroll, name='my_payroll'),
@@ -21,6 +21,8 @@ urlpatterns = [
     path('hr/payrolls-list/', views.hr_payroll_list, name='hr_payroll_list'),
 
     path('hr/create-employee/', views.create_employee, name='create_employee'),
+    path('hr/create-attendance/', views.create_attendance, name='create_attendance'),
+    path('hr/generate-payrolls/', views.generate_payroll, name='generate_payroll'),
     path('hr/mark-paid/<int:pk>', views.mark_paid, name='mark_paid'),
     
    

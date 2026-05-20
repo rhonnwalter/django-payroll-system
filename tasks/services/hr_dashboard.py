@@ -7,7 +7,9 @@ def hr_dashboard_stats(request):
         'payrolls' : payrolls,
         'total_employees' : Employee.objects.count(),
         'total_payrolls' : payrolls.count(),
-        'total_salary' : payrolls.aggregate(Sum('net_pay'))
-        #['total_pay_expr__sum' grab the actual number from the dictionary
+        'total_salary' : payrolls.aggregate(
+            Sum('net_pay')
+        )['net_pay__sum'] or 0
+        
     }
   

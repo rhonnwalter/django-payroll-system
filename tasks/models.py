@@ -37,9 +37,9 @@ class Employee(models.Model):
         ('PAY', 'Payroll Services'),
     ]
     EMPLOYEE_TYPE_CHOICES = [
-        ('FULLTIME', 'Fulltime'),
-        ('PARTTIME', 'Part time'),
-        ('INTERN', 'Intern'),
+        ('FULLTIME', 'Full-time'),
+        ('PARTTIME',  'Part-time'),
+        ('INTERN',  'Intern'),
     ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     employee_id = models.CharField(max_length=20, unique=True)
