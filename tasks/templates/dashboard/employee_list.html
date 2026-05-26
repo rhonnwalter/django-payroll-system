@@ -21,7 +21,7 @@
 
         </thead>
         <tbody>
-            {% for employee in employees %}
+            {% for employee in page_obj %}
             <tr>
                 <td>{{ employee.id }}</td>
                 <td>{{ employee.user.username }}</td>

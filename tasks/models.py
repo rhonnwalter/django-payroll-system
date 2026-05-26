@@ -1,10 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from decimal import Decimal, ROUND_HALF_UP
 from django.core.exceptions import ValidationError
-from datetime import date
-from django.db.models import F, ExpressionWrapper, DecimalField, Case, When, Value
-
 
 
 # MODELS

@@ -3,6 +3,7 @@ from .models import Attendance
 from .models import Employee
 from django.contrib.auth.models import User
 
+
 class AttendanceForm(forms.ModelForm):
     class Meta:
        model = Attendance
@@ -26,8 +27,12 @@ class GeneratePayrollForm(forms.Form):
             raise forms.ValidationError("Start date cannot be after the end date")
         
 class EmployeeForm(forms.ModelForm):
-    username = forms.CharField()
-    password = forms.CharField(widget=forms.PasswordInput)
+    username = forms.CharField(
+        widget=forms.TextInput(attrs={'autocomplete':'off'})
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'autocomplete':'off'})
+    )
     
    
     class Meta:  
