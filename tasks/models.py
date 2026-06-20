@@ -72,7 +72,13 @@ class Attendance(models.Model):
         validators=[validate_half_hour],
         default=0
     )
-
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=False
+        
+        )
     class Meta:
         unique_together = ('employee', 'date')
         ordering = ['-date']
