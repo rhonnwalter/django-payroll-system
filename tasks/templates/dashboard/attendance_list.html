@@ -1,0 +1,49 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Attendance List</h1>
+    
+    <form method="get">
+
+        <input type="text" name="search" 
+        placeholder="Search username/firstname/lastname/department" 
+        value="{{search_query}}">
+
+        <input type="text" name="date_from" 
+        value="{{date_from}}">
+
+        <input type="text" name="date_to" 
+        value="{{date_to}}">
+
+        <button type="submit">Search</button>
+
+    </form>
+
+    <table border="1" cellpadding="8">
+        <tr>
+            <th>Employee</th> 
+            <th>Position</th>
+            <th>Department</th>
+        </tr>
+
+        {% for attendance in page_obj%}
+        <tr>
+            <td>{{atttendance.employee.user.username}}</td>
+            <td>{{atttendance.employee.position}}</td>
+            <td>{{atttendance.employee.department}}</td>
+            <td>{{atttendance.regular_hours}}</td>
+            <td>{{atttendance.overtime_hours}}</td>
+
+        </tr>
+        {% endfor %}
+
+
+    </table>
+</body>
+</html>

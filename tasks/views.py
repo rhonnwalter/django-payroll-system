@@ -139,7 +139,7 @@ def create_attendance(request):
     if request.method == "POST":
         form = AttendanceForm(request.POST)
         if form.is_valid():
-           create_attendance_service(form)
+           create_attendance_service(form, request.user)
            return redirect('attendance_list')
     else: form = AttendanceForm()
 

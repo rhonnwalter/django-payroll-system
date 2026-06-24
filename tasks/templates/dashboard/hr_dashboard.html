@@ -14,7 +14,11 @@
 
     <p>Total Payroll Records: {{ total_payrolls }}</p>
     <p>Total Salary Expenses: ₱{{ total_salary|intcomma }}</p>
-    <p>Employees List</p> <a href="{% url 'employee_list'%}">View Employees</a>
+    <h3>Employees List</h3> <a href="{% url 'employee_list'%}">View Employees</a>
+
+    <h3>Record Attendance</h3> <a href="{% url 'record_attendance'%}">Record Attendance</a>
+
+    <h3>Attendance List</h3> <a href="{% url 'attendance_list'%}">View Attendances</a>
 
     <h3>All Payrolls</h3>
     <a href="{% url 'hr_payroll_list'%}">View Payrolls</a>
