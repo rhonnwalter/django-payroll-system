@@ -1,10 +1,16 @@
 from django import forms
 from .models import Attendance
 from .models import Employee
-from django.contrib.auth.models import User
+import datetime
 
 
 class AttendanceForm(forms.ModelForm):
+
+    date = forms.DateField(
+        widget=forms.DateInput(attrs={'type':'date', 'value': datetime.date.today()}),
+        label="Date"
+
+    )
     class Meta:
        model = Attendance
        fields = ['employee', 'date','regular_hours', 'overtime_hours']

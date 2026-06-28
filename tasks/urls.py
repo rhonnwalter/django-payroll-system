@@ -16,12 +16,12 @@ urlpatterns = [
     path('payroll-history/<int:employee_id>/', views.payroll_history, name='payroll_history'),
 
     path('hr/attendace-list/', views.attendance_list, name='attendance_list'),
+    path('hr/record-attendance/', views.record_attendance, name='record_attendance'),
     path('hr/employees-list/', views.employee_list, name='employee_list'),
     path('hr/employees/<int:employee_id>/payrolls/',views.employee_payrolls, name='employee_payrolls'),
     path('hr/payrolls-list/', views.hr_payroll_list, name='hr_payroll_list'),
 
     path('hr/create-employee/', views.create_employee, name='create_employee'),
-    path('hr/create-attendance/', views.create_attendance, name='create_attendance'),
     path('hr/generate-payrolls/', views.generate_payroll, name='generate_payroll'),
     path('hr/mark-paid/<int:pk>', views.mark_paid, name='mark_paid'),
     

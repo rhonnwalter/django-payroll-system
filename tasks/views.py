@@ -135,7 +135,7 @@ def create_employee(request):
        
 @login_required
 @hr_required
-def create_attendance(request):
+def record_attendance(request):
     if request.method == "POST":
         form = AttendanceForm(request.POST)
         if form.is_valid():
@@ -143,7 +143,7 @@ def create_attendance(request):
            return redirect('attendance_list')
     else: form = AttendanceForm()
 
-    return render(request, 'dashboard/create_attendance.html', {'form': form})
+    return render(request, 'dashboard/record_attendance.html', {'form': form})
 
  
 @login_required
