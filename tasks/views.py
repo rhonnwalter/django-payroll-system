@@ -10,6 +10,7 @@ from .services.payroll_services import filter_payrolls, mark_payroll_paid, get_p
 from .services.payroll_generate import generate_payroll as generate_payroll_service
 from .services.query_services import paginate_queryset
 from .services.permission_services import hr_required
+import datetime
 
 @login_required
 @hr_required
@@ -107,16 +108,19 @@ def payroll_history(request, employee_id=None):
 @hr_required
 def hr_payroll_list(request):
     search = (request.GET.get('search') or '').strip()
-        
+    month = int(request.GET.get('month', datetime.date.today().month))
+    year = int(request.GET.get('year', datetime.date.today().year))
     payrolls = get_current_month_payrolls()
-    payrolls = filter_payrolls(payrolls, search)
+    payrolls = filter_payrolls(payrolls, search, month, year)
     payrolls = payrolls.order_by('-payroll_period_start')
 
     page_obj = paginate_queryset(request, payrolls)
 
     context = {
+                'search_query' : search,
+                'month' : month,
+                'year' : year,
                 'page_obj' : page_obj,
-                'search_query' : search
     }
    
     return render (request, 'dashboard/hr_payroll_list.html', context)
