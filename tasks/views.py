@@ -110,7 +110,14 @@ def hr_payroll_list(request):
     search = (request.GET.get('search') or '').strip()
     month = int(request.GET.get('month', datetime.date.today().month))
     year = int(request.GET.get('year', datetime.date.today().year))
-    payrolls = get_current_month_payrolls()
+
+    months = range(1, 13)
+    current_year=datetime.datetime.today().year
+    years = range(2024, current_year + 1)
+
+    payrolls = Payroll.objects.select_related('employee__user').filter(
+        employee__is_active=True
+    )
     payrolls = filter_payrolls(payrolls, search, month, year)
     payrolls = payrolls.order_by('-payroll_period_start')
 
@@ -120,6 +127,8 @@ def hr_payroll_list(request):
                 'search_query' : search,
                 'month' : month,
                 'year' : year,
+                'months': months,
+                'years': years,
                 'page_obj' : page_obj,
     }
    
