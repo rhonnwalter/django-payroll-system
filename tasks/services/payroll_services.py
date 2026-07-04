@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from .permission_services import is_hr
 from django.utils import timezone
 
-def filter_payrolls(queryset, search=None):
+def filter_payrolls(queryset, search=None, month=None, year=None):
     if search: 
         search_condition = (
             Q(employee__user__username__icontains=search) |
@@ -13,8 +13,12 @@ def filter_payrolls(queryset, search=None):
             Q(employee__pay_type__icontains=search)  
         )
 
-        queryset = Payroll.filter(search_condition)
+        queryset = queryset.filter(search_condition)
 
+    if month: 
+        queryset = queryset.filter(payroll_period_start__month=month)
+    if year: 
+        queryset = queryset.filter(payroll_period_start__year=year)
     return queryset
 
 def mark_payroll_paid (payroll, user=None):

@@ -1,5 +1,6 @@
 
 {% load humanize %}
+{% load custom_filters %}
 <!DOCTYPE html>
 <html> 
 
@@ -11,7 +12,24 @@
     <h1>Payroll Records</h1>
 
     <form method="get"> 
-      <input type="text" name="search" placeholder="Search employee/position/period" value={{search_query}}>
+      <input type="text" name="search" placeholder="Search username/position/period" value={{search_query}}>
+
+      <select name="month">
+        {% for m in months %}
+          <option value="{{ m }}"{% if m == month %}selected{%endif%}>
+              {{ m|get_month_name }}
+          </option>   
+        {%endfor%}
+      </select>
+
+      <select name="year">
+        {% for y in years %}
+          <option value="{{y}}" {% if y == year %}selected{%endif%}>
+            {{ y }}
+          </option>
+        {% endfor %}
+      </select>
+
       <button type="submit">Search</button>
 
 
@@ -21,20 +39,22 @@
       <tr>
         <th>Employee</th> 
         <th>Position</th>
+        <th>Department</th>
         <th>Hours Worked</th>
         <th>Overtime Hours</th>
-        <th>Total Pay</th>
+        <th>Net Pay</th>
         <th>Payroll</th>
         <th>Status</th>
       </tr>
 
-      {% for payroll in page_obj%}
+      {% for payroll in page_obj %}
       <tr>
         <td>{{payroll.employee.user.username}}</td>
         <td>{{payroll.employee.position}}</td>
-        <td>{{payroll.hours_worked}}</td>
-        <td>{{payroll.overtime_hours}}</td>
-        <td>₱{{payroll.total_pay| intcomma}}</td>
+        <td>{{payroll.employee.department}}</td>
+        <td>{{payroll.total_regular_hours}}</td>
+        <td>{{payroll.total_overtime_hours}}</td>
+        <td>₱{{payroll.net_pay| intcomma}}</td>
         <td> <a href="{% url 'payroll_detail' payroll.pk%}">View</a></td>
         {% if user.is_staff and payroll.status != 'paid' %} 
           <td>{{payroll.get_status_display}} <a href="{% url 'mark_paid' payroll.pk  %}">Mark as Paid</a></td>
@@ -71,7 +91,7 @@
     </div>
 
     <hr>
-    <a href="{% url 'create_payroll'%}">+ Create Payroll</a>
+    <a href="{% url 'generate_payroll'%}">+ Generate Payroll</a>
 
 
   
