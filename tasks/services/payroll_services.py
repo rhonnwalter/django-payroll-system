@@ -9,6 +9,11 @@ def get_base_payroll():
         employee__is_active=True
     )
 
+def get_employee_payroll(employee):
+    return Payroll.objects.select_related('employee__user').filter(employee=employee).order_by('-payroll_period_start')
+
+def get_my_payroll(user):
+    return Payroll.objects.select_related('employee__user').filter(employee__user=user).order_by('-payroll_period_start').first()
 
 def filter_payrolls(queryset, search=None, month=None, year=None):
 
@@ -26,7 +31,7 @@ def filter_payrolls(queryset, search=None, month=None, year=None):
         queryset = queryset.filter(payroll_period_start__month=month)
     if year: 
         queryset = queryset.filter(payroll_period_start__year=year)
-        
+
     return queryset
 
 def mark_payroll_paid (payroll, user=None):

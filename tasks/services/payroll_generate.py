@@ -15,7 +15,7 @@ def get_employee_work_data(employee, start_date, end_date):
 
     totals = attendance_records.aggregate(
     total_regular=Sum('regular_hours'),
-    otal_overtime=Sum('overtime_hours')
+    total_overtime=Sum('overtime_hours')
     )
 
     total_regular=totals['total_regular'] or Decimal("0.00")

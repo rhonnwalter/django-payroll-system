@@ -5,8 +5,8 @@ from django.utils import timezone
 from .forms import EmployeeForm, AttendanceForm, GeneratePayrollForm
 from .services.hr_dashboard import hr_dashboard_stats
 from .services.employee_services import filter_employees, create_employee_service, get_base_employee
-from .services.attendance_service import filter_attendances, get_attendance_detail, create_attendance_service
-from .services.payroll_services import filter_payrolls, mark_payroll_paid, get_payroll_detail, get_payroll_history,  get_base_payroll
+from .services.attendance_service import filter_attendances, get_attendance_detail, create_attendance_service, get_base_attendance
+from .services.payroll_services import filter_payrolls, mark_payroll_paid, get_payroll_detail, get_payroll_history,  get_base_payroll, get_employee_payroll
 from .services.payroll_generate import generate_payroll as generate_payroll_service
 from .services.query_services import paginate_queryset
 from .services.permission_services import hr_required
@@ -38,7 +38,7 @@ def attendance_list(request):
     date_from = request.GET.get('date_from')
     date_to = request.GET.get('date_to')
     
-    attendances = Attendance.objects.select_related('employee__user').filter(employee__is_active=True)
+    attendances = get_base_attendance()
     attendances = filter_attendances(attendances, search=search, date_from=date_from, date_to=date_to)
 
     attendances = attendances.order_by('-date', 'employee__user__last_name', 'employee__user__first_name')
@@ -68,7 +68,7 @@ def my_attendance(request):
 @hr_required
 def employee_payrolls(request, employee_id):
     employee = get_object_or_404(Employee, id=employee_id)
-    payrolls = Payroll.objects.select_related('employee__user').filter(employee=employee).order_by('-payroll_period_start')
+    payrolls = get_employee_payroll(employee)
 
     return render(request, 'dashboard/employee_payrolls.html', {
         'employee' : employee,
@@ -77,7 +77,7 @@ def employee_payrolls(request, employee_id):
 
 @login_required
 def my_payroll(request):
-    payroll= Payroll.objects.select_related('employee__user').filter(employee__user=request.user).order_by('-payroll_period_start').first()
+    payroll= my_payroll(request.user)
     
     return render (request, 'dashboard/my_payroll.html', {'payroll':payroll})
 
