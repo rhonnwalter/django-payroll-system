@@ -1,7 +1,11 @@
 from django.db.models import Q
 from django.db import transaction
 from django.contrib.auth.models import User
-from django.shortcuts import redirect
+from tasks.models import Employee
+
+def get_base_employee():
+    return Employee.objects.select_related('user').filter(is_active=True)
+
 
 def filter_employees(queryset, search=None):
     if search:

@@ -4,7 +4,7 @@ from .models import Employee, Payroll, Attendance
 from django.utils import timezone
 from .forms import EmployeeForm, AttendanceForm, GeneratePayrollForm
 from .services.hr_dashboard import hr_dashboard_stats
-from .services.employee_services import filter_employees, create_employee_service
+from .services.employee_services import filter_employees, create_employee_service, get_base_employee
 from .services.attendance_service import filter_attendances, get_attendance_detail, create_attendance_service
 from .services.payroll_services import filter_payrolls, mark_payroll_paid, get_payroll_detail, get_payroll_history,  get_base_payroll
 from .services.payroll_generate import generate_payroll as generate_payroll_service
@@ -16,8 +16,8 @@ import datetime
 @hr_required
 def employee_list(request):
     search = (request.GET.get('search') or '').strip()
-    employees = Employee.objects.select_related('user').filter(is_active=True)
    
+    employees = get_base_employee()
     employees = filter_employees(employees, search=search)
 
     employees = employees.order_by('-is_active', 'user__last_name', 'user__first_name')
