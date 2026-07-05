@@ -6,7 +6,7 @@ from .forms import EmployeeForm, AttendanceForm, GeneratePayrollForm
 from .services.hr_dashboard import hr_dashboard_stats
 from .services.employee_services import filter_employees, create_employee_service
 from .services.attendance_service import filter_attendances, get_attendance_detail, create_attendance_service
-from .services.payroll_services import filter_payrolls, mark_payroll_paid, get_payroll_detail, get_payroll_history,  get_current_month_payrolls
+from .services.payroll_services import filter_payrolls, mark_payroll_paid, get_payroll_detail, get_payroll_history,  get_base_payroll
 from .services.payroll_generate import generate_payroll as generate_payroll_service
 from .services.query_services import paginate_queryset
 from .services.permission_services import hr_required
@@ -115,10 +115,8 @@ def hr_payroll_list(request):
     current_year=datetime.datetime.today().year
     years = range(2024, current_year + 1)
 
-    payrolls = Payroll.objects.select_related('employee__user').filter(
-        employee__is_active=True
-    )
-    payrolls = filter_payrolls(payrolls, search, month, year)
+    queryset = get_base_payroll()
+    payrolls = filter_payrolls(queryset, search, month, year)
     payrolls = payrolls.order_by('-payroll_period_start')
 
     page_obj = paginate_queryset(request, payrolls)
