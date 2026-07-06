@@ -4,8 +4,9 @@ from .models import Employee, Payroll, Attendance
 from django.utils import timezone
 from .forms import EmployeeForm, AttendanceForm, GeneratePayrollForm
 from .services.hr_dashboard import hr_dashboard_stats
+from .services.employee_dashboard import employee_dashboard
 from .services.employee_services import filter_employees, create_employee_service, get_base_employee
-from .services.attendance_service import filter_attendances, get_attendance_detail, create_attendance_service, get_base_attendance
+from .services.attendance_service import filter_attendances, get_attendance_detail, create_attendance_service, get_base_attendance, get_my_attendance
 from .services.payroll_services import filter_payrolls, mark_payroll_paid, get_payroll_detail, get_payroll_history,  get_base_payroll, get_employee_payroll
 from .services.payroll_generate import generate_payroll as generate_payroll_service
 from .services.query_services import paginate_queryset
@@ -61,7 +62,7 @@ def attendance_detail(request, pk):
 
 @login_required
 def my_attendance(request):
-    attendances = Attendance.objects.select_related('employee__user').filter(employee__user = request.user)
+    attendances = get_my_attendance(request.user)
     return render (request, 'dashboard/my_attendance.html', {'attendances':attendances})
 
 @login_required
@@ -193,7 +194,7 @@ def hr_dashboard(request):
 
 @login_required
 def employee_dashboard(request):
-    payrolls = Payroll.objects.select_related('employee__user').filter(employee__user=request.user).order_by('-created_at')
+    payrolls = employee_dashboard(request.user)
     latest_payroll = payrolls.first()
     total_payrolls = payrolls.count()
 
