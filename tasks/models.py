@@ -8,6 +8,13 @@ def validate_half_hour(value): #validator for decimal .50 in hours_worked and ov
     if (value * 100) % 50 != 0: 
         raise ValidationError('Hours must be in increments of 0.50') 
     
+class Department(models.Model):
+    code = models.CharField(max_length=10, unique=True)
+    name = models.CharField(max_length=100)
+
+class Position(models.Model):
+    title = models.CharField(max_length=100)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name="positions")
 
 class Employee(models.Model):
     PAY_TYPE_CHOICES = [
