@@ -1,11 +1,13 @@
 from django.db.models import Q
 from django.db import transaction
 from django.contrib.auth.models import User
-from tasks.models import Employee
+from tasks.models import Employee, Department
 
 def get_base_employee():
     return Employee.objects.select_related('user').filter(is_active=True)
 
+def get_department(dept_id=None):
+    return Department.objects.get(id=dept_id)
 
 def filter_employees(queryset, search=None):
     if search:
@@ -25,9 +27,6 @@ def filter_employees(queryset, search=None):
 
 @transaction.atomic
 def create_employee_service(form):
-    if not form.is_valid():
-        raise ValueError("Invalid form data")
-    
     username = form.cleaned_data['username']
     password = form.cleaned_data['password']
 
