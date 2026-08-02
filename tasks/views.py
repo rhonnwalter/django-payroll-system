@@ -1,11 +1,11 @@
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.shortcuts import redirect,  render, get_object_or_404
-from .models import Employee, Payroll, Attendance
-from django.utils import timezone
+from .models import Employee, Payroll
 from .forms import EmployeeForm, AttendanceForm, GeneratePayrollForm
 from .services.hr_dashboard import hr_dashboard_stats
 from .services.employee_dashboard import employee_dashboard
-from .services.employee_services import filter_employees, create_employee_service, get_base_employee
+from .services.employee_services import filter_employees, create_employee_service, get_base_employee, get_department, department_list
 from .services.attendance_service import filter_attendances, get_attendance_detail, create_attendance_service, get_base_attendance, get_my_attendance
 from .services.payroll_services import filter_payrolls, mark_payroll_paid, get_payroll_detail, get_payroll_history,  get_base_payroll, get_employee_payroll
 from .services.payroll_generate import generate_payroll as generate_payroll_service
@@ -31,6 +31,14 @@ def employee_list(request):
     }
 
     return render (request, 'dashboard/employee_list.html', context)
+
+@login_required
+@hr_required
+def get_position(request):
+    dept_id = request.GET.get('department_id')
+    dept = get_department(dept_id)
+    positions = dept.positions.all().values('id', 'title')
+    return JsonResponse(list(positions), safe=False)
 
 @login_required
 @hr_required
@@ -109,6 +117,8 @@ def payroll_history(request, employee_id=None):
 @hr_required
 def hr_payroll_list(request):
     search = (request.GET.get('search') or '').strip()
+
+    department = (request.GET.get('department'))
     month = int(request.GET.get('month', datetime.date.today().month))
     year = int(request.GET.get('year', datetime.date.today().year))
 
@@ -117,13 +127,14 @@ def hr_payroll_list(request):
     years = range(2024, current_year + 1)
 
     queryset = get_base_payroll()
-    payrolls = filter_payrolls(queryset, search, month, year)
+    payrolls = filter_payrolls(queryset, department, search, month, year)
     payrolls = payrolls.order_by('-payroll_period_start')
 
     page_obj = paginate_queryset(request, payrolls)
 
     context = {
                 'search_query' : search,
+                'DEPARTMENT_TYPE_CHOICES':Employee.DEPARTMENT_TYPE_CHOICES,
                 'month' : month,
                 'year' : year,
                 'months': months,
@@ -143,7 +154,11 @@ def create_employee(request):
                 return redirect ('employee_list')
     else:
         form = EmployeeForm()
-    return render(request, 'dashboard/create_employee.html', {'form': form} )  
+    departments = department_list() 
+    return render(request, 'dashboard/create_employee.html', {
+        'form': form,
+        'departments': departments
+    })  
        
 @login_required
 @hr_required
