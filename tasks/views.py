@@ -5,7 +5,7 @@ from .models import Employee, Payroll
 from .forms import EmployeeForm, AttendanceForm, GeneratePayrollForm
 from .services.hr_dashboard import hr_dashboard_stats
 from .services.employee_dashboard import employee_dashboard
-from .services.employee_services import filter_employees, create_employee_service, get_base_employee, get_department, department_list
+from .services.employee_services import filter_employees, filter_positions_by_department, create_employee_service, get_base_employee, get_department, department_list
 from .services.attendance_service import filter_attendances, get_attendance_detail, create_attendance_service, get_base_attendance, get_my_attendance
 from .services.payroll_services import filter_payrolls, mark_payroll_paid, get_payroll_detail, get_payroll_history,  get_base_payroll, get_employee_payroll
 from .services.payroll_generate import generate_payroll as generate_payroll_service
@@ -34,10 +34,9 @@ def employee_list(request):
 
 @login_required
 @hr_required
-def get_position(request):
+def get_positions(request):
     dept_id = request.GET.get('department_id')
-    dept = get_department(dept_id)
-    positions = dept.positions.all().values('id', 'title')
+    positions = filter_positions_by_department(dept_id)
     return JsonResponse(list(positions), safe=False)
 
 @login_required

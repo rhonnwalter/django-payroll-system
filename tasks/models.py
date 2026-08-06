@@ -11,33 +11,19 @@ def validate_half_hour(value): #validator for decimal .50 in hours_worked and ov
 class Department(models.Model):
     code = models.CharField(max_length=10, unique=True)
     name = models.CharField(max_length=100)
+    def __str__(self):
+        return f"{self.code} - {self.name}"
 
 class Position(models.Model):
     title = models.CharField(max_length=100)
     department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name="positions")
+    def __str__(self):
+        return f"{self.title} - ({self.department.name})"
 
 class Employee(models.Model):
     PAY_TYPE_CHOICES = [
         ("hourly", "Hourly"),
         ("salary", "Salary"),
-    ]
-    DEPARTMENT_TYPE_CHOICES = [
-        ("DEV", "Software Development"),
-        ("OPS", "IT Operations"),
-        ("SEC", "Cybersecurity"),
-        ("DATA", "Data & Analytics"),
-
-        ("SUP", "Technical Support"),
-        ("HR", "Human Resources"),
-        ("FIN", "Finance"),
-        ('SAL', 'Sales & Marketing'),
-        ('PM', 'Project Management'),
-        ('QA', 'Quality Assurance'),
-        ('ADM', 'Administrative Services'),
-        ('JAN', 'Janitorial Services'),
-        ('SECUR', 'Security Services'),
-        ('CALL', 'Call Center / BPO'),
-        ('PAY', 'Payroll Services'),
     ]
     EMPLOYEE_TYPE_CHOICES = [
         ('FULLTIME', 'Full-time'),
@@ -46,9 +32,8 @@ class Employee(models.Model):
     ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     employee_id = models.CharField(max_length=20, unique=True)
-
-    position  =models.CharField(max_length=100)
-    department = models.CharField(max_length=10, choices=DEPARTMENT_TYPE_CHOICES, default='DEV')
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+    position = models.ForeignKey(Position, on_delete=models.CASCADE)
     employee_type = models.CharField(max_length=10, choices=EMPLOYEE_TYPE_CHOICES, default='FULLTIME')
     pay_type = models.CharField(max_length=10, choices=PAY_TYPE_CHOICES, default='hourly')
 

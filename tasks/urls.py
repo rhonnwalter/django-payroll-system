@@ -22,6 +22,7 @@ urlpatterns = [
     path('hr/payrolls-list/', views.hr_payroll_list, name='hr_payroll_list'),
 
     path('hr/create-employee/', views.create_employee, name='create_employee'),
+    path('hr/get-positions/', views.get_positions, name='get_position'),
     path('hr/generate-payrolls/', views.generate_payroll, name='generate_payroll'),
     path('hr/mark-paid/<int:pk>', views.mark_paid, name='mark_paid'),
     

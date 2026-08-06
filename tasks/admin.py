@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Employee, Payroll, Attendance
+from .models import Employee, Payroll, Attendance, Department, Position
 
 # Register your models here.
 
@@ -13,6 +13,19 @@ class EmployeeAdmin(admin.ModelAdmin):
         'is_active',
         'date_hired',
         )
+
+class DepartmentAdmin(admin.ModelAdmin):
+    list_display = (
+        'code',
+        'name',
+    )
+
+class PositionAdmin(admin.ModelAdmin):
+    list_display = (
+        'title',
+        'department',
+    )
+
 class AttendanceAdmin(admin.ModelAdmin):
     list_display = (
         'employee',
@@ -53,7 +66,9 @@ class PayrollAdmin(admin.ModelAdmin):
 
     
 
-
+admin.site.register(Position, PositionAdmin)
 admin.site.register(Employee, EmployeeAdmin)
 admin.site.register(Attendance, AttendanceAdmin)
 admin.site.register(Payroll, PayrollAdmin)
+admin.site.register(Department, DepartmentAdmin)
+
