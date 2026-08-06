@@ -9,8 +9,57 @@
     <h3>Add Employee</h3>
     <form method="POST">
         {% csrf_token %}
-        {{form.as_p}}
+
+        <label for="department">Department:</label>
+        <select id="department" name="department" >
+            {% for dept in departments %}
+            <option value="{{ dept.id }}">{{ dept.name }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="position">Position:</label>
+        <select id="position" name="position" >
+            <option value="">Select position</option>
+           
+
+        </select>
+        
+        
+        <p>{{ form.employee_id }}</p>
+        <p>{{ form.employee_type }}</p>
+        <p>{{ form.pay_type }}</p>
+        <p>{{ form.hourly_rate }}</p>
+        <p>{{ form.salary_per_period }}</p>
+        <p>{{ form.username }}</p>
+        <p>{{ form.password }}</p>
+                
         <button type="submit">Save</button>
     </form>
+
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const deptSelect = document.getElementById("department");
+        const positionSelect = document.getElementById("position");
+
+        deptSelect.addEventListener("change", function () {
+            const deptId = this.value;
+            fetch(`/hr/get-positions/?department_id=${deptId}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Reset dropdown with default option
+                    positionSelect.innerHTML = "<option value=''>Select position</option>";
+                    data.forEach(pos => {
+                        const option = document.createElement("option");
+                        option.value = pos.id;
+                        option.textContent = pos.title;
+                        positionSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error("Error fetching positions:", error));
+        });
+    });
+</script>
+
 </body>
 </html>
