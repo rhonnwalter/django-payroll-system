@@ -31,7 +31,9 @@ class Employee(models.Model):
         ('INTERN',  'Intern'),
     ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    employee_id = models.CharField(max_length=20, unique=True)
+    employee_id = models.CharField(max_length=20, unique=True, editable = False)
+    
+
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
     position = models.ForeignKey(Position, on_delete=models.CASCADE)
     employee_type = models.CharField(max_length=10, choices=EMPLOYEE_TYPE_CHOICES, default='FULLTIME')
@@ -45,6 +47,17 @@ class Employee(models.Model):
     is_active = models.BooleanField(default = True)
     date_hired = models.DateTimeField(auto_now_add=True)
 
+    def save(self, *args, **kwargs):
+                if not self.employee_id:
+                    last_emp = Employee.objects.order_by('-id').first
+                    if last_emp and last_emp.employee_id:
+                        last_num = int(last_emp.employee_id.split('-')[-1])
+                        new_num = last_num + 1
+                    else:
+                        new_num = 1
+                    self.employee_id = f'EMP-{new_num:04d}'
+                super().save(*args, **kwargs)
+                
     def __str__(self):
         return f"{self.employee_id} - {self.user.username}"
     
