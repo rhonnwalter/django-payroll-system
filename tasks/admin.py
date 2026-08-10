@@ -5,6 +5,9 @@ from .models import Employee, Payroll, Attendance, Department, Position
 
 class EmployeeAdmin(admin.ModelAdmin):
     list_display = (
+        'employee_id'
+        'last_name',
+        'first_name',
         'user',
         'position',
         'hourly_rate',

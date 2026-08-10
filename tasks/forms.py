@@ -14,6 +14,7 @@ class AttendanceForm(forms.ModelForm):
     class Meta:
        model = Attendance
        fields = ['employee', 'date','regular_hours', 'overtime_hours']
+       
 class GeneratePayrollForm(forms.Form):
     start_date = forms.DateField(
         widget=forms.DateInput(attrs={'type':'date'}),
@@ -34,17 +35,19 @@ class GeneratePayrollForm(forms.Form):
         
 class EmployeeForm(forms.ModelForm):
     username = forms.CharField(
-        widget=forms.TextInput(attrs={'autocomplete':'off'})
+        widget=forms.TextInput(attrs={'name':'new_username', 'autocomplete':'off'})
     )
     password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'autocomplete':'off'})
+        widget=forms.PasswordInput(attrs={'name':'new_password', 'autocomplete':'off'})
     )
     
    
     class Meta:  
         model = Employee
         fields = [   
-                'employee_id',
+                'first_name',
+                'middle_name',
+                'last_name',
                 'position',
                 'department',
                 'employee_type',
@@ -52,6 +55,15 @@ class EmployeeForm(forms.ModelForm):
                 'hourly_rate',
                 'salary_per_period',
                
-         ]
+        ]
+
+        labels = {
+            'position': 'Job Position',
+            'department': 'Department Name',
+            'employee_type': 'Employment Type',
+            'pay_type': 'Payment Type',
+            'hourly_rate': 'Hourly Rate ',
+            'salary_per_period': 'Monthly Salary',
+        }
     
     
