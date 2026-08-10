@@ -10,12 +10,13 @@
     <form method="POST" autocomplete="off" enctype="multipart/form-data">
         {% csrf_token %}
 
-        {% if employee.profile_picture %}
-            <img src="{{ employee.profile_picture.url}}" alt="Profile Picture" width="150">
-        {% else %}
-         <p>No profile picture uploaded.</p>
-        {% endif %}
-        
+      
+        <p>
+            <label for="id_profile_picture">Profile Picture</label>
+            <input type="file" name="profile_picture" id="id_profile_picture">
+        </p>
+       <img src="#" alt="Preview" style="display:none;" width="150">
+
         <label for="department">Department:</label>
         <select id="department" name="department" >
             {% for dept in departments %}
@@ -96,6 +97,14 @@
                 .catch(error => console.error("Error fetching positions:", error));
         });
     });
+    document.getElementById('id_profile_picture').addEventListener('change', function(event){
+        const [file] = event.target.files;
+        if (file) {
+            const preview = document.getElementById('preview');
+            preview.src = URL.createObjectURL(file);
+            preview.style.display = 'block';
+        }
+    })
 </script>
 
 </body>
