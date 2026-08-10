@@ -3,6 +3,13 @@ from django.db.models import Q
 from tasks.models import Attendance
 from django.shortcuts import get_object_or_404
 from .permission_services import is_hr
+
+def get_base_attendance():
+    return Attendance.objects.select_related('employee__user').filter(employee__is_active=True)
+
+def get_my_attendance(user):
+    return Attendance.objects.select_related('employee__user').filter(employee__user = user)
+
 def filter_attendances(queryset, search=None, date_from=None, date_to=None):
 
     if date_from:

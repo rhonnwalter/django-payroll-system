@@ -18,7 +18,12 @@
     <th>Hourly Rate</th>
     <th>Hours Worked</th>
     <th>Overtime Hours</th>
-    <th>Total Pay</th>
+    <th>Gross Pay</th>
+    <th>SSS </th>
+    <th>PhilHealth</th>
+    <th>PagIBIG</th>
+    <th>Tax</th>
+    <th>Net Pay</th>
    
     </tr>
    
@@ -26,9 +31,14 @@
         <td>{{payroll.employee.user.username}}</td>
         <td>{{payroll.employee.position}}</td>
         <td>{{payroll.employee.hourly_rate}}</td>
-        <td>{{payroll.hours_worked}}</td>
-        <td>{{payroll.overtime_hours}}</td>
-        <td>₱{{payroll.total_pay| intcomma}}</td>
+        <td>{{payroll.total_regular_hours}}</td>
+        <td>{{payroll.total_overtime_hours}}</td>
+        <td>₱{{payroll.gross_pay| intcomma}}</td>
+        <td>-₱{{payroll.sss| intcomma}}</td>
+        <td>-₱{{payroll.philhealth| intcomma}}</td>
+        <td>-₱{{payroll.pagibig| intcomma}}</td>
+        <td>-₱{{payroll.tax| intcomma}}</td>
+        <td>₱{{payroll.net_pay| intcomma}}</td>
         
 
 

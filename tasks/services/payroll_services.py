@@ -15,13 +15,15 @@ def get_employee_payroll(employee):
 def get_my_payroll(user):
     return Payroll.objects.select_related('employee__user').filter(employee__user=user).order_by('-payroll_period_start').first()
 
-def filter_payrolls(queryset, search=None, month=None, year=None):
+def filter_payrolls(queryset, department=None, search=None, month=None, year=None):
 
+    if department:
+        queryset = queryset.filter(employee__department=department)
+    
     if search: 
         search_condition = (
             Q(employee__user__username__icontains=search) |
             Q(employee__position__icontains=search)  |
-            Q(employee__department__icontains=search)  |
             Q(employee__pay_type__icontains=search)  
         )
 
