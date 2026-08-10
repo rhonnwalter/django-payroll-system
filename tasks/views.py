@@ -147,7 +147,7 @@ def hr_payroll_list(request):
 @hr_required
 def create_employee(request):
     if request.method == "POST":
-            form = EmployeeForm(request.POST)
+            form = EmployeeForm(request.POST, request.FILES)
             if form.is_valid():
                 create_employee_service(form)
                 return redirect ('employee_list')

@@ -44,7 +44,8 @@ class EmployeeForm(forms.ModelForm):
    
     class Meta:  
         model = Employee
-        fields = [   
+        fields = [  
+                'profile_picture' ,
                 'first_name',
                 'middle_name',
                 'last_name',
@@ -58,6 +59,10 @@ class EmployeeForm(forms.ModelForm):
         ]
 
         labels = {
+            'profile_picture': 'Profile Picture',
+            'first_name' : 'First Name',
+            'middle_name' : 'Middle Name',
+            'last_name' : 'Last Name',
             'position': 'Job Position',
             'department': 'Department Name',
             'employee_type': 'Employment Type',

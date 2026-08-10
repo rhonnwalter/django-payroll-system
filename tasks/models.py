@@ -32,11 +32,11 @@ class Employee(models.Model):
     ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     employee_id = models.CharField(max_length=20, unique=True, editable = False)
-    
-    first_name = models.Charfield(max_length=150, null=False, blank=False)
-    middle_name = models.Charfield(max_length=150, null=False, blank=False)
-    last_name = models.Charfield(max_length=150, null=False, blank=False)
-    
+
+    first_name = models.CharField(max_length=150, null=False, blank=False)
+    middle_name = models.CharField(max_length=150, null=False, blank=False)
+    last_name = models.CharField(max_length=150, null=False, blank=False)
+    profile_picture = models.ImageField(upload_to='employee_pics/', null=True, blank=False)
 
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
     position = models.ForeignKey(Position, on_delete=models.CASCADE)
