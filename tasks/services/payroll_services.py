@@ -18,7 +18,7 @@ def get_my_payroll(user):
 def filter_payrolls(queryset, department=None, search=None, month=None, year=None):
 
     if department:
-        queryset = queryset.filter(employee__department=department)
+        queryset = queryset.filter(employee__department_id=department)
     
     if search: 
         search_condition = (
