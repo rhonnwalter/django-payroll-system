@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import redirect,  render, get_object_or_404
-from .models import Employee, Payroll
+from .models import Employee, Payroll, Department
 from .forms import EmployeeForm, AttendanceForm, GeneratePayrollForm
 from .services.hr_dashboard import hr_dashboard_stats
 from .services.employee_dashboard import employee_dashboard
@@ -133,7 +133,8 @@ def hr_payroll_list(request):
 
     context = {
                 'search_query' : search,
-                'DEPARTMENT_TYPE_CHOICES':Employee.DEPARTMENT_TYPE_CHOICES,
+                'department' : department, 
+                'departments' : Department.objects.all(),
                 'month' : month,
                 'year' : year,
                 'months': months,

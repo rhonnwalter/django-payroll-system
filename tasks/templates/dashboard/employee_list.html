@@ -7,26 +7,37 @@
 </head>
 <body>
     <h1>Employee List</h1>
+      
+    <a href="{% url 'create_employee'%}">Create Employee</a>
     
     <table border="1">
+        
         <thead>
-            <tr>
+            <tr>    
+
                 <th>ID</th>
                 <th>Name</th>
                 <th>Position</th>
+                <th>Profile Picture</th>
                 <th>Actions</th>
-
-
+                
             </tr>
 
         </thead>
         <tbody>
             {% for employee in page_obj %}
             <tr>
-                <td>{{ employee.id }}</td>
-                <td>{{ employee.user.username }}</td>
+                
+                <td>{{ employee.employee_id }}</td>
+                <td>{{ employee.full_name }}</td>
                 <td>{{ employee.position}}</td>
-
+                <td>
+                    {% if employee.profile_picture %}
+                        <img src='{{ employee.profile_picture.url }}' alt='Profile Picture' width='80' height='80'>
+                    {% else %}
+                        <p>No Picture</p>
+                    {% endif %}
+                </td>
                 <td>
                     <a href="{% url 'employee_payrolls' employee.id %}"> View Payroll</a>
 
@@ -46,6 +57,6 @@
 
 
     </table>
-    <a href="{% url 'create_employee'%}">Create Employee</a>
+   
 </body>
 </html>

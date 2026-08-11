@@ -22,8 +22,8 @@ class Position(models.Model):
 
 class Employee(models.Model):
     PAY_TYPE_CHOICES = [
-        ("hourly", "Hourly"),
-        ("salary", "Salary"),
+        ('hourly', 'Hourly'),
+        ('salary', 'Salary'),
     ]
     EMPLOYEE_TYPE_CHOICES = [
         ('FULLTIME', 'Full-time'),
@@ -34,7 +34,7 @@ class Employee(models.Model):
     employee_id = models.CharField(max_length=20, unique=True, editable = False)
 
     first_name = models.CharField(max_length=150, null=False, blank=False)
-    middle_name = models.CharField(max_length=150, null=False, blank=False)
+    middle_name = models.CharField(max_length=150, null=True, blank=True)
     last_name = models.CharField(max_length=150, null=False, blank=False)
     profile_picture = models.ImageField(upload_to='employee_pics/', null=True, blank=False)
 
@@ -51,6 +51,9 @@ class Employee(models.Model):
     is_active = models.BooleanField(default = True)
     date_hired = models.DateTimeField(auto_now_add=True)
 
+    def full_name(self):
+        return f'{self.first_name} {self.middle_name} {self.last_name}'
+
     def save(self, *args, **kwargs):
         if not self.employee_id:
             last_emp = Employee.objects.order_by('-id').first()
@@ -63,8 +66,8 @@ class Employee(models.Model):
             super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.employee_id} - {self.user.username}"
-    
+        return f'{self.employee_id} - {self.user.username}'
+
 class Attendance(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     date = models.DateField()

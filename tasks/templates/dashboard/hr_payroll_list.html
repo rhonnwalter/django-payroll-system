@@ -14,13 +14,12 @@
     <form method="get"> 
       <input type="text" name="search" placeholder="Search username/position/period" value={{search_query}}>
 
-      <select name="department">
-        {% for code, label in DEPARTMENT_TYPE_CHOICES %}
-          <option value="{{ code }}" {% if code == department%}selected{%endif%}>
-             {{ label }}
-          </option>
-        {% endfor %}
-      <select/>
+        <label for="department">Department:</label>
+        <select id="department" name="department" >
+            {% for dept in departments %}
+            <option value="{{ dept.id }}">{{ dept.name }}</option>
+            {% endfor %}
+        </select>
 
       <select name="month">
         {% for m in months %}

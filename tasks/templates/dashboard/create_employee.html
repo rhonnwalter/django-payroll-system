@@ -15,7 +15,7 @@
             <label for="id_profile_picture">Profile Picture</label>
             <input type="file" name="profile_picture" id="id_profile_picture">
         </p>
-       <img src="#" alt="Preview" style="display:none;" width="150">
+        <img id='preview'src="#" alt="Preview" style="display:none;" width="150">
 
         <label for="department">Department:</label>
         <select id="department" name="department" >
@@ -104,7 +104,7 @@
             preview.src = URL.createObjectURL(file);
             preview.style.display = 'block';
         }
-    })
+    });
 </script>
 
 </body>
