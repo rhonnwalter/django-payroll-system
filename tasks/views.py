@@ -49,6 +49,14 @@ def edit_employee(request, pk):
     else:
         form = EmployeeForm(instance=employee)
     return render (request, 'dashboard/edit_employee.html', {'form':form, 'employee':employee})
+
+def delete_employee(request, pk):
+    employee = get_object_or_404(Employee, pk)
+    if request.method == "POST":
+        employee.delete()
+        return redirect ('employee_list')
+    return render (request, 'dashboard/confirm_delete.html' )
+    
 @login_required
 @hr_required
 def attendance_list(request):
