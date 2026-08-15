@@ -5,7 +5,7 @@ from .models import Employee, Payroll, Department
 from .forms import EmployeeForm, AttendanceForm, GeneratePayrollForm
 from .services.hr_dashboard import hr_dashboard_stats
 from .services.employee_dashboard import employee_dashboard
-from .services.employee_services import filter_employees, filter_positions_by_department, create_employee_service, get_base_employee, get_department, department_list
+from .services.employee_services import filter_employees, filter_positions_by_department, create_employee_service, get_base_employee, edit_employee_service, department_list
 from .services.attendance_service import filter_attendances, get_attendance_detail, create_attendance_service, get_base_attendance, get_my_attendance
 from .services.payroll_services import filter_payrolls, mark_payroll_paid, get_payroll_detail, get_payroll_history,  get_base_payroll, get_employee_payroll
 from .services.payroll_generate import generate_payroll as generate_payroll_service
@@ -39,6 +39,16 @@ def get_positions(request):
     positions = filter_positions_by_department(dept_id)
     return JsonResponse(list(positions), safe=False)
 
+def edit_employee(request, pk):
+    employee = get_object_or_404(Employee, pk)
+    if request.method == "POST":
+        form = EmployeeForm(request.POST, request.FILES, instance=employee)
+        if form.is_valid:
+            form.save()
+            return redirect ('employee_list')
+    else:
+        form = EmployeeForm(instance=employee)
+    return render (request, 'dashboard/edit_employee.html', {'form':form, 'employee':employee})
 @login_required
 @hr_required
 def attendance_list(request):
@@ -61,7 +71,7 @@ def attendance_list(request):
     }
 
     return render (request, 'dashboard/attendance_list.html', context)
-
+ 
 @login_required
 def attendance_detail(request, pk):
     attendance = get_attendance_detail(request.user, pk)

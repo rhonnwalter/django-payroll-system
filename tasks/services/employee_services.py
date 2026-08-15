@@ -2,6 +2,7 @@ from django.db.models import Q
 from django.db import transaction
 from django.contrib.auth.models import User
 from tasks.models import Employee, Department, Position
+from django.shortcuts import get_object_or_404
 
 def get_base_employee():
     return Employee.objects.select_related('user').filter(is_active=True)
@@ -47,6 +48,7 @@ def create_employee_service(form):
     employee.save()
     
     return employee
+
 
     
 def department_list():
