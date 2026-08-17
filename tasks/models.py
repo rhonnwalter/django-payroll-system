@@ -63,7 +63,7 @@ class Employee(models.Model):
             else:
                 new_num = 1
             self.employee_id = f'EMP-{new_num:04d}'
-            super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.employee_id} - {self.user.username}'
