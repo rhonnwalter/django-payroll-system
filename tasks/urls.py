@@ -21,7 +21,8 @@ urlpatterns = [
     path('hr/employees/<int:employee_id>/payrolls/',views.employee_payrolls, name='employee_payrolls'),
     path('hr/payrolls-list/', views.hr_payroll_list, name='hr_payroll_list'),
 
-    path('hr/edit-employee', views.edit_employee, name='edit_employee'),
+    path('hr/edit-employee/<int:pk>/', views.edit_employee, name='edit_employee'),
+    path('hr/delete-employee/<int:pk>/', views.delete_employee, name='delete_employee'),
     path('hr/create-employee/', views.create_employee, name='create_employee'),
     path('hr/get-positions/', views.get_positions, name='get_position'),
     path('hr/generate-payrolls/', views.generate_payroll, name='generate_payroll'),
