@@ -10,6 +10,7 @@
     <p>Are you sure you want to delete {{ employee.first_name }} {{ employee.last_name }}</p>
 
     <form method="POST">
+        {% csrf_token %}
         <button type"submit">Yes</button>
         <a href="{% url 'employee_list' %}"></a>
 

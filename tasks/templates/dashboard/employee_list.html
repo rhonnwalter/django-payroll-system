@@ -20,6 +20,8 @@
                 <th>Position</th>
                 <th>Profile Picture</th>
                 <th>Actions</th>
+                <th>Edit</th>
+                <th>Delete</th>
                 
             </tr>
 
@@ -42,7 +44,14 @@
                     <a href="{% url 'employee_payrolls' employee.id %}"> View Payroll</a>
 
                 </td>
-                
+
+                <td>
+                    <a href="{% url 'edit_employee' employee.pk %}">Edit</a>
+                </td>
+
+                <td>
+                    <a href="{% url 'delete_employee' employee.pk %}">Delete</a>
+                </td>
             </tr>
             {% empty %}
             <tr>
@@ -57,6 +66,12 @@
 
 
     </table>
-   
+   {% if messages %}
+   <ul class="messages">
+        {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+   </ul>
+   {% endif %}
 </body>
 </html>

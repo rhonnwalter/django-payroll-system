@@ -7,10 +7,15 @@
 </head>
 <body>
     <h2>Edit Employee</h2>
-    <form method='post' enctype='multipart/form-data'>
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type='submit'>Save Changes</button>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <h3>Employee Details</h3>
+        {{ emp_form.as_p }}
+        <br>
+        <h3>User Details</h3>
+        {{ user_form.as_p}}
+        <button type='submit'>Save Changes</button>
+        
     </form>
 </body>
 </html>
