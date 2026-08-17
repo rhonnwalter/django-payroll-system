@@ -35,10 +35,10 @@ class GeneratePayrollForm(forms.Form):
         
 class EmployeeForm(forms.ModelForm):
     username = forms.CharField(
-        widget=forms.TextInput(attrs={'name':'new_username', 'autocomplete':'off'})
+        widget=forms.TextInput(attrs={'name':'username', 'autocomplete':'off'})
     )
     password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'name':'new_password', 'autocomplete':'off'})
+        widget=forms.PasswordInput(attrs={'name':'password', 'autocomplete':'off'})
     )
     
    
@@ -57,6 +57,8 @@ class EmployeeForm(forms.ModelForm):
                 'salary_per_period',
                
         ]
+        exclude = ['employee_id']
+
 
         labels = {
             'profile_picture': 'Profile Picture',
@@ -70,5 +72,19 @@ class EmployeeForm(forms.ModelForm):
             'hourly_rate': 'Hourly Rate ',
             'salary_per_period': 'Monthly Salary',
         }
-    
-    
+    def __init__(self,*args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.user:
+            self.fields['username'].initial = self.instance.user.username
+
+    def save(self, commit=True):
+        employee = super().save(commit=commit)
+        user = employee.user
+
+        if user:
+            user.username = self.cleaned_data['username']
+            user.set_password(self.cleaned_data['password'])
+            if commit:
+                user.save()
+            
+        return employee
