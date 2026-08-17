@@ -1,9 +1,10 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.db import transaction
 from django.http import JsonResponse, request
 from django.shortcuts import redirect,  render, get_object_or_404
 from .models import Employee, Payroll, Department
-from .forms import EmployeeForm, AttendanceForm, GeneratePayrollForm
+from .forms import EmployeeForm, AttendanceForm, GeneratePayrollForm, UserForm
 from .services.hr_dashboard import hr_dashboard_stats
 from .services.employee_dashboard import employee_dashboard
 from .services.employee_services import filter_employees, filter_positions_by_department, create_employee_service, get_base_employee, department_list
@@ -42,25 +43,27 @@ def get_positions(request):
 
 def edit_employee(request, pk):
     employee = get_object_or_404(Employee, pk=pk)
+    user = employee.user
+    
     if request.method == "POST":
-        form = EmployeeForm(request.POST, request.FILES, instance=employee)
-        print("POST data:", request.POST)
-        print("FILES data:", request.FILES)
-        print("Bound fields:", form.data)
-        print("Changed fields:", form.changed_data)
+        emp_form = EmployeeForm(request.POST, request.FILES, instance=employee)
+        user_form = UserForm(request.POST, instance=user)
 
 
-        if form.is_valid():
-            print("Cleaned data:", form.cleaned_data)
+        if emp_form.is_valid() and user_form.is_valid() :
+            print('Cleaned data:', user_form.cleaned_data)
+            print('Cleaned data:', emp_form.cleaned_data)
             with transaction.atomic():
-                form.save()
-                print("Employee updated:", employee)
+                user_form.save()
+                emp_form.save()
+                messages.success (request, 'Employee and User details updated successfully')
                 return redirect ('employee_list')
         else:
-             print("form errors:", form.errors)
+             messages.error(request, 'Please correct the errors below.')
     else:
-        form = EmployeeForm(instance=employee)
-    return render (request, 'dashboard/edit_employee.html', {'form':form, 'employee':employee})
+        user_form = UserForm(instance=user)
+        emp_form = EmployeeForm(instance=employee)
+    return render (request, 'dashboard/edit_employee.html', {'user_form':user_form,'emp_form':emp_form, 'employee':employee})
 
 def delete_employee(request, pk):
     employee = get_object_or_404(Employee, pk=pk)
