@@ -31,23 +31,6 @@ def filter_employees(queryset, search=None):
     return queryset
 
 
-@transaction.atomic
-def create_employee_service(form):
-    username = form.cleaned_data['username']
-    password = form.cleaned_data['password']
-
-    if User.objects.filter(username=username).exists():
-        raise ValueError("Username already exists")
-    
-    user = User.objects.create_user(
-                username=username,
-                password=password
-    )
-    employee = form.save(commit=False)
-    employee.user = user
-    employee.save()
-    
-    return employee
 
 
     
