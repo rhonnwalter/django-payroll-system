@@ -31,44 +31,46 @@
 
         </select>
         <p>
-            {{ form.first_name.label_tag}}
-            {{ form.first_name }}
+            {{ emp_form.first_name.label_tag}}
+            {{ emp_form.first_name }}
         </p>
 
          <p>
-            {{ form.middle_name.label_tag}}
-            {{ form.middle_name }}
+            {{ emp_form.middle_name.label_tag}}
+            {{ emp_form.middle_name }}
         </p>
 
         <p>
-            {{ form.last_name.label_tag}}
-            {{ form.last_name }}
+            {{ emp_form.last_name.label_tag}}
+            {{ emp_form.last_name }}
         </p>
 
     
         <p>
-            {{ form.employee_type.label_tag}}
-            {{ form.employee_type }}
+            {{ emp_form.employee_type.label_tag}}
+            {{ emp_form.employee_type }}
         </p>
         <p>
-            {{ form.pay_type.label_tag}}
-            {{ form.pay_type }}
+            {{ emp_form.pay_type.label_tag}}
+            {{ emp_form.pay_type }}
         </p>
         <p>
-            {{ form.hourly_rate.label_tag}}
-            {{ form.hourly_rate }}
+            {{ emp_form.hourly_rate.label_tag}}
+            {{ emp_form.hourly_rate }}
         </p>
         <p>
-            {{ form.salary_per_period.label_tag}}
-            {{ form.salary_per_period }}
+            {{ emp_form.salary_per_period.label_tag}}
+            {{ emp_form.salary_per_period }}
+        </p>
+        <br>
+        <h3>User Details</h3>
+        <p>
+            {{ user_form.username.label_tag}}
+            {{ user_form.username }}
         </p>
         <p>
-            {{ form.username.label_tag}}
-            {{ form.username }}
-        </p>
-        <p>
-            {{ form.password.label_tag}}
-            {{ form.password }}
+            {{ user_form.password.label_tag}}
+            {{ user_form.password }}
         </p>
                 
         <button type="submit">Save</button>
