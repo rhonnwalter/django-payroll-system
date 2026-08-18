@@ -44,11 +44,17 @@ class UserForm(forms.ModelForm):
             'username' : 'Username',
             'password' : 'Password'
         }
+        
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError("Username already exists.")
+        return username
 
     def save(self, commit=True):
         user = super().save(commit=False)
+
         if user:
-            user.username =  self.cleaned_data['username']
             user.set_password (self.cleaned_data['password'])
             if commit: 
                 user.save()
@@ -57,13 +63,6 @@ class UserForm(forms.ModelForm):
 
 
 class EmployeeForm(forms.ModelForm):
-    username = forms.CharField(
-        widget=forms.TextInput(attrs={'name':'username', 'autocomplete':'off'})
-    )
-    password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'name':'password', 'autocomplete':'off'})
-    )
-    
    
     class Meta:  
         model = Employee
@@ -72,8 +71,8 @@ class EmployeeForm(forms.ModelForm):
                 'first_name',
                 'middle_name',
                 'last_name',
-                'position',
                 'department',
+                'position',
                 'employee_type',
                 'pay_type',
                 'hourly_rate',
