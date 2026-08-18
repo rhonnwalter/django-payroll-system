@@ -7,7 +7,7 @@ from .models import Employee, Payroll, Department
 from .forms import EmployeeForm, AttendanceForm, GeneratePayrollForm, UserForm
 from .services.hr_dashboard import hr_dashboard_stats
 from .services.employee_dashboard import employee_dashboard
-from .services.employee_services import filter_employees, filter_positions_by_department, create_employee_service, get_base_employee, department_list
+from .services.employee_services import filter_employees, filter_positions_by_department,get_base_employee, department_list
 from .services.attendance_service import filter_attendances, get_attendance_detail, create_attendance_service, get_base_attendance, get_my_attendance
 from .services.payroll_services import filter_payrolls, mark_payroll_paid, get_payroll_detail, get_payroll_history,  get_base_payroll, get_employee_payroll
 from .services.payroll_generate import generate_payroll as generate_payroll_service
@@ -181,15 +181,29 @@ def hr_payroll_list(request):
 @hr_required
 def create_employee(request):
     if request.method == "POST":
-            form = EmployeeForm(request.POST, request.FILES)
-            if form.is_valid():
-                create_employee_service(form)
-                return redirect ('employee_list')
+            user_form = UserForm(request.POST)
+            emp_form = EmployeeForm(request.POST, request.FILES)
+            if emp_form.is_valid() and user_form.is_valid():
+                try:
+                    user = user_form.save()
+                    employee = emp_form.save(commit=False)
+                    employee.user = user
+                    employee.save()
+                    messages.success(request, "Employee Created Successfully")
+                    return redirect ('employee_list')
+                
+                except ValueError as e:
+                    messages.error(request, str(e))
+
     else:
-        form = EmployeeForm()
+        emp_form = EmployeeForm()
+        user_form = UserForm()
+
     departments = department_list() 
+
     return render(request, 'dashboard/create_employee.html', {
-        'form': form,
+        'emp_form': emp_form,
+        'user_form': user_form,
         'departments': departments
     })  
        
