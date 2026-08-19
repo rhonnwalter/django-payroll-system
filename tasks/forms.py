@@ -35,6 +35,8 @@ class GeneratePayrollForm(forms.Form):
 class UserForm(forms.ModelForm):
     class Meta:
         password = forms.CharField(widget=forms.PasswordInput, required=False)
+        confirm_password = forms.Charfield(widget=forms.PasswordInput, required=False)
+
         model = User
         fields = [
             'username',
@@ -51,15 +53,22 @@ class UserForm(forms.ModelForm):
             raise forms.ValidationError("Username already exists.")
         return username
 
+    def clean(self):
+        cleaned_data = super().clean()
+        password = self.cleaned_data.get('password')
+        confirm_password = self.cleaned_data.get('confirm_password')
+
+        if password and confirm_password and password != confirm_password:
+            forms.ValidationError("Passwords do not match.")
+        return cleaned_data
+
     def save(self, commit=True):
         user = super().save(commit=False)
-
-        if user:
-            user.set_password (self.cleaned_data['password'])
-            if commit: 
+        if self.cleaned_data.get('password'):
+            user.set_password(self.cleaned_data['password'])
+            if commit:
                 user.save()
             return user
-
 
 
 class EmployeeForm(forms.ModelForm):
