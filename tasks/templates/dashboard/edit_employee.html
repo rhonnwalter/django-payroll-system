@@ -14,8 +14,24 @@
         <br>
         <h3>User Details</h3>
         {{ user_form.as_p}}
+        <input type="checkbox" onclick="togglePassword()" > Show Password
+        <br>    
+        <br>
         <button type='submit'>Save Changes</button>
         
     </form>
+    
+    <script>
+        function togglePassword(){
+        const pwd = document.getElementById('id_password')
+        const confirmPwd = document.getElementById('id_confirm_password')
+
+        if (pwd && confirmPwd) {
+            const newType = pwd.type === 'password' ? 'text' : 'password'
+            pwd.type = newType;
+            confirmPwd = newType;
+        }
+    }
+    </script>
 </body>
 </html>
