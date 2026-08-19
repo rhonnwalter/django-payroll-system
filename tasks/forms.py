@@ -33,9 +33,11 @@ class GeneratePayrollForm(forms.Form):
             raise forms.ValidationError("Start date cannot be after the end date")
 
 class UserForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput, required=False)
+    confirm_password = forms.CharField(widget=forms.PasswordInput, required=False)
+    
     class Meta:
-        password = forms.CharField(widget=forms.PasswordInput, required=False)
-        confirm_password = forms.Charfield(widget=forms.PasswordInput, required=False)
+      
 
         model = User
         fields = [
