@@ -4,15 +4,41 @@ import datetime
 
 
 class AttendanceForm(forms.ModelForm):
-
+ 
     date = forms.DateField(
         widget=forms.DateInput(attrs={'type':'date', 'value': datetime.date.today()}),
         label="Date"
-
     )
+
+    regular_hours = forms.DecimalField(
+        min_value=0,
+        max_value=12,
+        widget=forms.NumberInput(attrs={'placeholder': 'Enter regular hours worked'})
+    )
+    overtime_hours = forms.DecimalField(
+        min_value=0,
+        max_value=8,
+         widget=forms.NumberInput(attrs={'placeholder': 'Enter overtime hours worked'})
+    )
+     
     class Meta:
        model = Attendance
        fields = ['employee', 'date','regular_hours', 'overtime_hours']
+
+    def clean_date(self):
+        date = self.cleaned_data.get('date')
+        if date and date > datetime.date.today():
+            raise forms.ValidationError("Invalid date, Cannot use future date.")
+        return date
+
+    def save(self, commit=True, user=None):
+        attendance = super().save(commit=False)
+        if user is not None:
+            attendance.created_by = user
+        if commit:
+            attendance.save()
+        return attendance
+
        
 class GeneratePayrollForm(forms.Form):
     start_date = forms.DateField(

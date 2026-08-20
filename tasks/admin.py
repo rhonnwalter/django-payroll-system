@@ -34,7 +34,8 @@ class AttendanceAdmin(admin.ModelAdmin):
         'employee',
         'date',
         'regular_hours',
-        'overtime_hours'
+        'overtime_hours',
+        'created_by'
     )
     list_filter = ('date', 'employee')
     search_fields = ('employee__user__username',)
