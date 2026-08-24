@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.db import transaction
 from django.http import JsonResponse, request
 from django.shortcuts import redirect,  render, get_object_or_404
-from .models import Employee, Payroll, Department
+from .models import Employee, Payroll, Department, Attendance
 from .forms import EmployeeForm, AttendanceForm, GeneratePayrollForm, UserForm
 from .services.hr_dashboard import hr_dashboard_stats
 from .services.employee_dashboard import employee_dashboard
@@ -14,6 +14,70 @@ from .services.payroll_generate import generate_payroll as generate_payroll_serv
 from .services.query_services import paginate_queryset
 from .services.permission_services import hr_required
 import datetime
+
+@login_required
+@hr_required
+def get_positions(request):
+    dept_id = request.GET.get('department_id')
+    positions = filter_positions_by_department(dept_id)
+    return JsonResponse(list(positions), safe=False)
+
+@login_required
+@hr_required
+def create_employee(request):
+    if request.method == "POST":
+            user_form = UserForm(request.POST)
+            emp_form = EmployeeForm(request.POST, request.FILES)
+            if emp_form.is_valid() and user_form.is_valid():
+                try:
+                    user = user_form.save()
+                    employee = emp_form.save(commit=False)
+                    employee.user = user
+                    employee.save()
+                    messages.success(request, "Employee Created Successfully")
+                    return redirect ('employee_list')
+                
+                except ValueError as e:
+                    messages.error(request, str(e))
+
+    else:
+        emp_form = EmployeeForm()
+        user_form = UserForm()
+
+    departments = department_list() 
+
+    return render(request, 'dashboard/create_employee.html', {
+        'emp_form': emp_form,
+        'user_form': user_form,
+        'departments': departments
+    })  
+       
+
+
+def edit_employee(request, pk):
+    employee = get_object_or_404(Employee, pk=pk)
+    user = employee.user
+    
+    if request.method == "POST":
+        emp_form = EmployeeForm(request.POST, request.FILES, instance=employee)
+        user_form = UserForm(request.POST, instance=user)
+
+
+        if emp_form.is_valid() and user_form.is_valid() :
+            print('Cleaned data:', user_form.cleaned_data)
+            print('Cleaned data:', emp_form.cleaned_data)
+            with transaction.atomic():
+                user_form.save()
+                emp_form.save()
+                messages.success (request, 'Employee and User details updated successfully')
+                return redirect ('employee_list')
+        else:
+             messages.error(request, 'Please correct the errors below.')
+    else:
+        user_form = UserForm(instance=user)
+        emp_form = EmployeeForm(instance=employee)
+    return render (request, 'dashboard/edit_employee.html', {'user_form':user_form,'emp_form':emp_form, 'employee':employee})
+  
 
 @login_required
 @hr_required
@@ -33,13 +97,6 @@ def employee_list(request):
     }
 
     return render (request, 'dashboard/employee_list.html', context)
-
-@login_required
-@hr_required
-def get_positions(request):
-    dept_id = request.GET.get('department_id')
-    positions = filter_positions_by_department(dept_id)
-    return JsonResponse(list(positions), safe=False)
 
 def edit_employee(request, pk):
     employee = get_object_or_404(Employee, pk=pk)
@@ -71,6 +128,9 @@ def delete_employee(request, pk):
         employee.delete()
         return redirect ('employee_list')
     return render (request, 'dashboard/confirm_delete.html' )
+
+
+
     
 @login_required
 @hr_required
@@ -104,6 +164,32 @@ def attendance_detail(request, pk):
 def my_attendance(request):
     attendances = get_my_attendance(request.user)
     return render (request, 'dashboard/my_attendance.html', {'attendances':attendances})
+
+@login_required
+@hr_required
+def record_attendance(request):
+    if request.method == "POST":
+        form = AttendanceForm(request.POST)
+        if form.is_valid():
+           attendance = form.save(user=request.user)
+           return redirect('attendance_list')
+    else: form = AttendanceForm()
+
+    return render(request, 'dashboard/record_attendance.html', {'form': form})
+
+@login_required
+@hr_required
+def edit_attendance(request, pk):
+    attendance = get_object_or_404(Attendance, pk=pk)
+    if request.method == "POST":
+        form = AttendanceForm(request.POST, instance=attendance)
+        if form.is_valid():
+           attendance = form.save(user=request.user)
+           return redirect('attendance_list')
+    else: form = AttendanceForm(instance=attendance)
+
+    return render(request, 'dashboard/record_attendance.html', {'form': form})
+
 
 @login_required
 @hr_required
@@ -177,47 +263,7 @@ def hr_payroll_list(request):
    
     return render (request, 'dashboard/hr_payroll_list.html', context)
 
-@login_required
-@hr_required
-def create_employee(request):
-    if request.method == "POST":
-            user_form = UserForm(request.POST)
-            emp_form = EmployeeForm(request.POST, request.FILES)
-            if emp_form.is_valid() and user_form.is_valid():
-                try:
-                    user = user_form.save()
-                    employee = emp_form.save(commit=False)
-                    employee.user = user
-                    employee.save()
-                    messages.success(request, "Employee Created Successfully")
-                    return redirect ('employee_list')
-                
-                except ValueError as e:
-                    messages.error(request, str(e))
 
-    else:
-        emp_form = EmployeeForm()
-        user_form = UserForm()
-
-    departments = department_list() 
-
-    return render(request, 'dashboard/create_employee.html', {
-        'emp_form': emp_form,
-        'user_form': user_form,
-        'departments': departments
-    })  
-       
-@login_required
-@hr_required
-def record_attendance(request):
-    if request.method == "POST":
-        form = AttendanceForm(request.POST)
-        if form.is_valid():
-           attendance = form.save(user=request.user)
-           return redirect('attendance_list')
-    else: form = AttendanceForm()
-
-    return render(request, 'dashboard/record_attendance.html', {'form': form})
 
  
 @login_required
