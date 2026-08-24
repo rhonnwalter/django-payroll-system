@@ -188,7 +188,7 @@ def edit_attendance(request, pk):
            return redirect('attendance_list')
     else: form = AttendanceForm(instance=attendance)
 
-    return render(request, 'dashboard/record_attendance.html', {'form': form})
+    return render(request, 'dashboard/edit_attendance.html', {'form': form})
 
 
 @login_required

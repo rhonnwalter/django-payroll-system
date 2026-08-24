@@ -13,12 +13,14 @@ class AttendanceForm(forms.ModelForm):
     regular_hours = forms.DecimalField(
         min_value=0,
         max_value=12,
-        widget=forms.NumberInput(attrs={'placeholder': 'Enter regular hours worked'})
+        initial=0,
+        
     )
     overtime_hours = forms.DecimalField(
         min_value=0,
         max_value=8,
-         widget=forms.NumberInput(attrs={'placeholder': 'Enter overtime hours worked'})
+        initial=0,
+       
     )
      
     class Meta:

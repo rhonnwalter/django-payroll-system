@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="container mt-5">
+        <h3>Record Attendance</h3>
+        <form method="POST" class="row g-3">
+            {% csrf_token %}   
+            <div class="col-md-6">
+                {{ form.employee.label_tag}}
+                {{ form.employee}}
+                {% if form.employee.errors %}
+                    <div class="text-danger">{{ form.employee.erorrs}}</div>
+                {% endif %}
+            </div> 
+
+            <div class="col-md-6">
+                {{ form.date.label_tag}}
+                {{ form.date}}
+                {% if form.date.errors %}
+                    <div class="text-danger">{{ form.date.erorrs}}</div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6">
+                {{ form.regular_hours.label_tag }}
+                {{ form.regular_hours }}
+                {% if form.regular_hours.erorrs %}
+                    <div class="text-danger">{{ form.regular_hours.errors}}</div>
+                {% endif %}
+
+            </div>
+
+            <div class="col-md-6">
+                {{ form.overtime_hours.label_tag }}
+                {{ form.overtime_hours }}
+                {% if form.overtime_hours.errors %}
+                    <div class="text-danger"> {{form.overtime_hours.errors}}</div>
+                {% endif %}
+            </div>
+             <div class="col-12">
+            <button type='submit'>Submit</button>
+            </div>
+            
+        </form>
+    </div>
+</body>
+</html>
