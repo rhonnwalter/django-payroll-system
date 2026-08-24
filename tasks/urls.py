@@ -17,7 +17,7 @@ urlpatterns = [
 
     path('hr/attendace/', views.attendance_list, name='attendance_list'),
     path('hr/attendance/record/', views.record_attendance, name='record_attendance'),
-    path('hr/attendance/edit/<int:pk>', views.edit_attendance, name='edit_attendance'),
+    path('hr/attendance/edit/<int:pk>/', views.edit_attendance, name='edit_attendance'),
     
     path('hr/employees-list/', views.employee_list, name='employee_list'),
     path('hr/employees/<int:employee_id>/payrolls/',views.employee_payrolls, name='employee_payrolls'),
